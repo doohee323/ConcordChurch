@@ -13,12 +13,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -29,8 +29,17 @@ import android.webkit.WebView;
 
 public class MainActivity extends ActionBarActivity {
 
-	static String STORAGE_DIR = null;
 	static String RESOURCE_DOMAIN = null;
+
+	public static final String CACHE_DIR = Environment.getDataDirectory()
+			.toString();
+	public static final String SD_DIR = Environment
+			.getExternalStorageDirectory().toString();
+//	public static final String STORAGE_DIR = SD_DIR + "/churchapp";
+	public static final String STORAGE_DIR = Environment
+			.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+			.getAbsolutePath()
+			+ "/churchapp";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,20 +61,17 @@ public class MainActivity extends ActionBarActivity {
 		webSettings.setJavaScriptEnabled(true);
 		myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
 		myWebView.setWebChromeClient(new CustomWebChromeClient());
-		// myWebView.loadUrl("http://52.0.156.206:3000");
-		STORAGE_DIR = getApplicationContext().getFilesDir().getAbsolutePath()
-				+ File.separator;
+		myWebView.loadUrl("http://52.0.156.206:3000");
 
 		try {
-			// Thread.sleep(10000);
-			// new GetHttpResourceTask()
-			// .execute("http://52.0.156.206:3000/resources.json");
-			
-			String fileNm = STORAGE_DIR + "index.html";
+			Thread.sleep(10000);
+			new GetHttpResourceTask()
+					.execute("http://52.0.156.206:3000/resources.json");
+
+			String fileNm = STORAGE_DIR + "/index.html";
 			File test = new File(fileNm);
-			System.out.println(fileNm + "->"
-					+ test.exists());
-			myWebView.loadUrl("file:///" + STORAGE_DIR + "index.html");
+			System.out.println(fileNm + "->" + test.exists());
+//			myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
