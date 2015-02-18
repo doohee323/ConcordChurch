@@ -2,10 +2,13 @@ package com.tz.concordchurch;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Scanner;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -15,8 +18,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -26,16 +32,20 @@ import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class MainActivity extends ActionBarActivity {
 
 	static String RESOURCE_DOMAIN = null;
+	static Boolean FORCE_YN = false;
+
+	public WebView myWebView = null;
 
 	public static final String CACHE_DIR = Environment.getDataDirectory()
 			.toString();
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
-//	public static final String STORAGE_DIR = SD_DIR + "/churchapp";
+	// public static final String STORAGE_DIR = SD_DIR + "/churchapp";
 	public static final String STORAGE_DIR = Environment
 			.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
 			.getAbsolutePath()
@@ -56,22 +66,14 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	protected void onStart() {
 		StrictMode.enableDefaults();
-		WebView myWebView = (WebView) findViewById(R.id.webview);
-		WebSettings webSettings = myWebView.getSettings();
-		webSettings.setJavaScriptEnabled(true);
-		myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
-		myWebView.setWebChromeClient(new CustomWebChromeClient());
-		myWebView.loadUrl("http://52.0.156.206:3000");
-
 		try {
+//			AssetManager am = getAssets();
+//			am.openNonAssetFd("assets/test.png");
+			
 			Thread.sleep(10000);
 			new GetHttpResourceTask()
-					.execute("http://52.0.156.206:3000/resources.json");
+					.execute("http://192.168.1.17:3000/resources.json");
 
-			String fileNm = STORAGE_DIR + "/index.html";
-			File test = new File(fileNm);
-			System.out.println(fileNm + "->" + test.exists());
-//			myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -87,6 +89,15 @@ public class MainActivity extends ActionBarActivity {
 		super.onStart();
 	}
 
+	@Override
+	public void onBackPressed() {
+		if (myWebView.canGoBack()) {
+			myWebView.goBack();
+		} else {
+			finish();
+		}
+	}
+
 	public class CustomWebChromeClient extends WebChromeClient {
 		@Override
 		public void onReceivedIcon(WebView view, Bitmap icon) {
@@ -99,7 +110,7 @@ public class MainActivity extends ActionBarActivity {
 			try {
 				JSONObject json = new JSONObject(src);
 				RESOURCE_DOMAIN = json.getString("domain");
-				Boolean forceYn = json.getBoolean("forceYn");
+				FORCE_YN = json.getBoolean("forceYn");
 				JSONArray resources = json.getJSONArray("resources");
 				for (int i = 0; i < resources.length(); i++) {
 					String resource = ((JSONObject) resources.get(i))
@@ -109,32 +120,86 @@ public class MainActivity extends ActionBarActivity {
 					String version = ((JSONObject) resources.get(i))
 							.getString("version");
 					resource = resource.substring(1, resource.length());
+					System.out.println("resource=========>" + resource);
 					getResources(resource);
 				}
-				System.out.println(json);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
-		public String callbackResources(String src) {
-			return "";
+		public void callbackResources(String fileNm) {
+			try {
+				if (fileNm.equals("index.html")) {
+					myWebView = (WebView) findViewById(R.id.webview);
+					WebSettings webSettings = myWebView.getSettings();
+					webSettings.setJavaScriptEnabled(true);
+					webSettings.setBuiltInZoomControls(true);
+					myWebView.setWebViewClient(new WebViewClient() {
+						@Override
+						public void onPageStarted(WebView view, String url,
+								Bitmap favicon) {
+							super.onPageStarted(view, url, favicon);
+						}
+
+						@Override
+						public void onPageFinished(WebView view, String url) {
+							super.onPageFinished(view, url);
+						}
+					});
+					// myWebView.setWebChromeClient(new WebChromeClient() {
+					// });
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+						myWebView.setWebContentsDebuggingEnabled(true);
+					}
+					if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+						myWebView.getSettings()
+								.setAllowUniversalAccessFromFileURLs(true);
+					}
+
+					// myWebView.addJavascriptInterface(new
+					// WebAppInterface(this),
+					// "Android");
+					myWebView.setWebChromeClient(new CustomWebChromeClient());
+					// myWebView.loadUrl("http://52.0.156.206:3000");
+
+					String filePath = STORAGE_DIR + "/index.html";
+					File file = new File(filePath);
+					if (file.exists()) {
+						String html;
+						html = getFromFile(filePath, "utf-8").toString();
+						System.out.println(filePath + "->" + file.exists());
+						// myWebView.loadUrl("file:///" + STORAGE_DIR +
+						// "/index.html");
+						myWebView.loadUrl("file:///android_asset/www/index.html");
+//						myWebView.loadDataWithBaseURL("file:///" + STORAGE_DIR,
+//								html, "text/html", "utf-8", null);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		public String getResources(String fileNm) {
+			WebResource listener = new WebResource();
 			String filePath = null;
 			try {
-				filePath = STORAGE_DIR + fileNm;
-				File dir = new File(STORAGE_DIR);
-				if (!dir.exists()) {
-					dir.mkdirs();
-				}
+				filePath = STORAGE_DIR + "/" + fileNm;
 				File file = new File(filePath);
-				if (file.exists()) {
+				if (file.exists() && !FORCE_YN) {
+					System.out.println("filePath exist ==> " + filePath);
+					listener.callbackResources(fileNm);
 				} else {
-					// StrictMode.enableDefaults();
+					System.out.println("filePath not exist ==> " + filePath);
+					filePath = STORAGE_DIR + "/" + fileNm;
+					filePath = filePath.substring(0, filePath.lastIndexOf("/"));
+					File dir = new File(filePath);
+					if (!dir.exists()) {
+						dir.mkdirs();
+					}
 					new GetHttpResourceTask().execute(RESOURCE_DOMAIN + "/"
-							+ fileNm);
+							+ fileNm, filePath);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -147,6 +212,7 @@ public class MainActivity extends ActionBarActivity {
 	class GetHttpResourceTask extends AsyncTask<String, Void, InputStream> {
 		private WebResource listener = new WebResource();
 		private String fileNm = null;
+		private String filePath = null;
 
 		@Override
 		protected InputStream doInBackground(String... urls) {
@@ -155,6 +221,8 @@ public class MainActivity extends ActionBarActivity {
 				String strUrl = urls[0];
 				fileNm = strUrl.substring(strUrl.lastIndexOf("/") + 1,
 						strUrl.length());
+				if (urls.length > 1)
+					filePath = urls[1];
 				HttpClient httpclient = new DefaultHttpClient();
 				HttpGet httpget = new HttpGet(strUrl);
 				HttpResponse response = httpclient.execute(httpget);
@@ -193,7 +261,7 @@ public class MainActivity extends ActionBarActivity {
 				OutputStream output = null;
 				try {
 					byte[] buffer = new byte[8 * 1024];
-					output = new FileOutputStream(STORAGE_DIR + fileNm);
+					output = new FileOutputStream(filePath + "/" + fileNm);
 					int bytesRead;
 					while ((bytesRead = input.read(buffer)) != -1) {
 						output.write(buffer, 0, bytesRead);
@@ -204,14 +272,14 @@ public class MainActivity extends ActionBarActivity {
 					try {
 						output.close();
 						input.close();
-						File test = new File(STORAGE_DIR + fileNm);
-						System.out.println(STORAGE_DIR + fileNm + "->"
+						File test = new File(STORAGE_DIR + "/" + fileNm);
+						System.out.println(STORAGE_DIR + "/" + fileNm + "->"
 								+ test.exists());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				listener.callbackResources("");
+				listener.callbackResources(fileNm);
 			}
 		}
 	}
@@ -254,5 +322,61 @@ public class MainActivity extends ActionBarActivity {
 			// reset to old policy
 			StrictMode.setThreadPolicy(mPreviousThreadPolicy);
 		}
+	}
+
+	/**
+	 * <pre>
+	 * </pre>
+	 *
+	 * @param file
+	 * @param strChar
+	 * @return String
+	 */
+	public static StringBuffer getFromFile(String fileName, String strChar)
+			throws IOException {
+		if (strChar == null) {
+			Scanner scanner = new Scanner(new File(fileName))
+					.useDelimiter("\\Z");
+			String contents = scanner.next();
+			scanner.close();
+			return new StringBuffer(contents);
+		}
+
+		if (strChar.equals(""))
+			strChar = null;
+
+		StringBuffer sb = new StringBuffer(1000);
+		InputStreamReader is = null;
+		BufferedReader in = null;
+		String lineSep = System.getProperty("line.separator");
+
+		try {
+			File f = new File(fileName);
+			if (f.exists()) {
+				if (strChar != null)
+					is = new InputStreamReader(new FileInputStream(f), strChar);
+				else
+					is = new InputStreamReader(new FileInputStream(f));
+				in = new BufferedReader(is);
+				String str = "";
+
+				int readed = 0;
+				while ((str = in.readLine()) != null) {
+					if (strChar != null)
+						readed += (str.getBytes(strChar).length);
+					else
+						readed += (str.getBytes().length);
+					sb.append(str + lineSep);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (is != null)
+				is.close();
+			if (in != null)
+				in.close();
+		}
+		return sb;
 	}
 }
