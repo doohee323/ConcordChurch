@@ -41,8 +41,6 @@ public class MainActivity extends ActionBarActivity {
 
 	public WebView myWebView = null;
 
-	public static final String CACHE_DIR = Environment.getDataDirectory()
-			.toString();
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
 	public static final String STORAGE_DIR = SD_DIR + "/churchapp";
