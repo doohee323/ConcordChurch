@@ -36,7 +36,7 @@ import android.webkit.WebViewClient;
 
 public class MainActivity extends ActionBarActivity {
 
-	static String RESOURCE_DOMAIN = "http://52.0.156.206:3001";
+	static String RESOURCE_DOMAIN = "http://52.0.156.206:9000";
 	static Boolean FORCE_YN = false;
 
 	public WebView myWebView = null;

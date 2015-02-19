@@ -3,11 +3,11 @@ ConcordChurch
 
 Support off-line web-app, version control for web resource 
 
-http://52.0.156.206:3001
-
 ㅇ function
 	- caching resource from web site
+		(http://52.0.156.206:9000)
 	- version control for each resource
+		(http://52.0.156.206:9000/resources.json)
 
 ㅇ flow
 	1) loading the installed web resource (for initial page)
