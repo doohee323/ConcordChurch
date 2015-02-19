@@ -3,6 +3,8 @@ ConcordChurch
 
 Support off-line web-app, version control for web resource 
 
+	http://52.0.156.206:9000/ConcordChurch.apk
+
 ㅇ Function
 
 	- Caching resource from web site
