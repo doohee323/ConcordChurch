@@ -18,7 +18,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.content.res.AssetManager;
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -36,7 +36,7 @@ import android.webkit.WebViewClient;
 
 public class MainActivity extends ActionBarActivity {
 
-	static String RESOURCE_DOMAIN = null;
+	static String RESOURCE_DOMAIN = "http://52.0.156.206:3001";
 	static Boolean FORCE_YN = false;
 
 	public WebView myWebView = null;
@@ -45,11 +45,7 @@ public class MainActivity extends ActionBarActivity {
 			.toString();
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
-	// public static final String STORAGE_DIR = SD_DIR + "/churchapp";
-	public static final String STORAGE_DIR = Environment
-			.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-			.getAbsolutePath()
-			+ "/churchapp";
+	public static final String STORAGE_DIR = SD_DIR + "/churchapp";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,31 +57,36 @@ public class MainActivity extends ActionBarActivity {
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		StrictMode.enableDefaults();
+		try {
+			WebResource listener = new WebResource();
+			listener.launchWebView();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
+	// myWebView.loadUrl("http://192.168.1.5:3000");
+	// 안드로이드에서 로컬디스크의 웹자원에 접근하는 방법
+	// 1. /ConcordChurch/assets/www/index.html 등을 넣고 접근
+	// myWebView.loadUrl("file:///android_asset/www/index.html");
+	// AssetManager am = getAssets();
+	// am.openNonAssetFd("assets/test.png");
+	// 2. 외부 저장소에 넣고 파일로 접근
+	// myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
+	// 3. 외부 저장소에 넣고 string으로 접근
+	// myWebView.loadDataWithBaseURL("file:///" + STORAGE_DIR, html,
+	// "text/html", "utf-8", null);
 
 	@Override
 	protected void onStart() {
 		StrictMode.enableDefaults();
 		try {
-//			AssetManager am = getAssets();
-//			am.openNonAssetFd("assets/test.png");
-			
-			Thread.sleep(10000);
-			new GetHttpResourceTask()
-					.execute("http://192.168.1.17:3000/resources.json");
-
+			new GetHttpResourceTask().execute(RESOURCE_DOMAIN
+					+ "/resources.json");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// getFileFromURL("http://52.0.156.206:3000/index.html",
-		// getApplicationContext());
-
-		// myWebView.loadDataWithBaseURL("not_needed",
-		// "test",
-		// "text/html",
-		// "utf-8",
-		// "not_needed");
 		super.onStart();
 	}
 
@@ -129,52 +130,55 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		public void callbackResources(String fileNm) {
+			if (fileNm.equals("index.html")) {
+				launchWebView();
+				FORCE_YN = false;
+			}
+		}
+
+		@SuppressLint("SetJavaScriptEnabled")
+		public void launchWebView() {
 			try {
-				if (fileNm.equals("index.html")) {
-					myWebView = (WebView) findViewById(R.id.webview);
-					WebSettings webSettings = myWebView.getSettings();
-					webSettings.setJavaScriptEnabled(true);
-					webSettings.setBuiltInZoomControls(true);
-					myWebView.setWebViewClient(new WebViewClient() {
-						@Override
-						public void onPageStarted(WebView view, String url,
-								Bitmap favicon) {
-							super.onPageStarted(view, url, favicon);
-						}
-
-						@Override
-						public void onPageFinished(WebView view, String url) {
-							super.onPageFinished(view, url);
-						}
-					});
-					// myWebView.setWebChromeClient(new WebChromeClient() {
-					// });
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-						myWebView.setWebContentsDebuggingEnabled(true);
-					}
-					if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-						myWebView.getSettings()
-								.setAllowUniversalAccessFromFileURLs(true);
+				myWebView = (WebView) findViewById(R.id.webview);
+				WebSettings webSettings = myWebView.getSettings();
+				webSettings.setJavaScriptEnabled(true);
+				webSettings.setBuiltInZoomControls(true);
+				myWebView.setWebViewClient(new WebViewClient() {
+					@Override
+					public void onPageStarted(WebView view, String url,
+							Bitmap favicon) {
+						super.onPageStarted(view, url, favicon);
 					}
 
-					// myWebView.addJavascriptInterface(new
-					// WebAppInterface(this),
-					// "Android");
-					myWebView.setWebChromeClient(new CustomWebChromeClient());
-					// myWebView.loadUrl("http://52.0.156.206:3000");
-
-					String filePath = STORAGE_DIR + "/index.html";
-					File file = new File(filePath);
-					if (file.exists()) {
-						String html;
-						html = getFromFile(filePath, "utf-8").toString();
-						System.out.println(filePath + "->" + file.exists());
-						// myWebView.loadUrl("file:///" + STORAGE_DIR +
-						// "/index.html");
-						myWebView.loadUrl("file:///android_asset/www/index.html");
-//						myWebView.loadDataWithBaseURL("file:///" + STORAGE_DIR,
-//								html, "text/html", "utf-8", null);
+					@Override
+					public void onPageFinished(WebView view, String url) {
+						super.onPageFinished(view, url);
 					}
+				});
+				// myWebView.setWebChromeClient(new WebChromeClient() {
+				// });
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+					WebView.setWebContentsDebuggingEnabled(true);
+				}
+				if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+					myWebView.getSettings()
+							.setAllowUniversalAccessFromFileURLs(true);
+				}
+
+				// myWebView.addJavascriptInterface(new WebAppInterface(this),
+				// "Android");
+				myWebView.setWebChromeClient(new CustomWebChromeClient());
+
+				String filePath = STORAGE_DIR + "/index.html";
+				File file = new File(filePath);
+				if (file.exists()) {
+					// String html = getFromFile(filePath, "utf-8").toString();
+					System.out.println(filePath + "->" + file.exists());
+					myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
+				} else {
+					myWebView.loadUrl("file:///android_asset/www/index.html");
+					new GetHttpResourceTask().execute(RESOURCE_DOMAIN
+							+ "/resources.json");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -272,14 +276,13 @@ public class MainActivity extends ActionBarActivity {
 					try {
 						output.close();
 						input.close();
-						File test = new File(STORAGE_DIR + "/" + fileNm);
 						System.out.println(STORAGE_DIR + "/" + fileNm + "->"
-								+ test.exists());
+								+ new File(STORAGE_DIR + "/" + fileNm).exists());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				listener.callbackResources(fileNm);
+				// listener.callbackResources(fileNm);
 			}
 		}
 	}
@@ -335,6 +338,7 @@ public class MainActivity extends ActionBarActivity {
 	public static StringBuffer getFromFile(String fileName, String strChar)
 			throws IOException {
 		if (strChar == null) {
+			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(new File(fileName))
 					.useDelimiter("\\Z");
 			String contents = scanner.next();
@@ -360,6 +364,7 @@ public class MainActivity extends ActionBarActivity {
 				in = new BufferedReader(is);
 				String str = "";
 
+				@SuppressWarnings("unused")
 				int readed = 0;
 				while ((str = in.readLine()) != null) {
 					if (strChar != null)
