@@ -2,13 +2,12 @@ package com.tz.concordchurch;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -35,15 +34,21 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.facebook.stetho.Stetho;
+
 public class MainActivity extends ActionBarActivity {
 
 	// static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
 	// static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
 	static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
-	static Boolean FORCE_YN = false;
+	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
+	static int REFRESH_TIME = 50000; // refresh interval, milisecond
 	static Boolean ASSETS_YN = false;
 	public WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
+	// cachelevel
+	// - static + version : according to the version
+	// - nocache
 
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
@@ -58,14 +63,28 @@ public class MainActivity extends ActionBarActivity {
 				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_main);
 		StrictMode.enableDefaults();
 		try {
 			ASSETS_YN = true;
 			launchWebView();
+
+			Timer progressTimer = new Timer();
+			ProgressTimerTask timeTask = new ProgressTimerTask();
+			progressTimer.scheduleAtFixedRate(timeTask, 0, REFRESH_TIME);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+//		Stetho.initialize(
+//			      Stetho.newInitializerBuilder(this)
+//			        .enableDumpapp(
+//			            Stetho.defaultDumperPluginsProvider(this))
+//			        .enableWebKitInspector(
+//			            Stetho.defaultInspectorModulesProvider(this))
+//			        .build());
+		
 	}
 
 	// myWebView.loadUrl("http://192.168.1.5:3000");
@@ -82,30 +101,6 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onStart() {
-		StrictMode.enableDefaults();
-		try {
-			Boolean bDownloaded = true;
-			for (int i = 0; i < allResources.length(); i++) {
-				String downloaded = ((JSONObject) allResources.get(i))
-						.getString("downloaded");
-				if (downloaded != null && downloaded.equals("n")) {
-					System.out.println("========>"
-							+ ((JSONObject) allResources.get(i))
-									.getString("resource"));
-					bDownloaded = false;
-					break;
-				}
-			}
-			if (bDownloaded && allResources.length() > 0) {
-				// myWebView.isFocused()
-				launchWebView();
-			} else {
-				new GetHttpResourceTask().execute(RESOURCE_DOMAIN
-						+ "/resources.json");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		super.onStart();
 	}
 
@@ -130,9 +125,11 @@ public class MainActivity extends ActionBarActivity {
 			try {
 				JSONObject json = new JSONObject(src);
 				RESOURCE_DOMAIN = json.getString("domain");
-				FORCE_YN = json.getBoolean("forceYn");
+				if (json.getBoolean("forceYn"))
+					CACHE_LV = 0;
 				JSONArray resources = json.getJSONArray("resources");
-				allResources = resources;
+				if (allResources.length() == 0)
+					allResources = resources;
 				for (int i = 0; i < resources.length(); i++) {
 					String resource = ((JSONObject) resources.get(i))
 							.getString("resource");
@@ -141,8 +138,33 @@ public class MainActivity extends ActionBarActivity {
 					String version = ((JSONObject) resources.get(i))
 							.getString("version");
 					resource = resource.substring(1, resource.length());
+
+					String downloaded = "y";
+					String prevVersion = ((JSONObject) allResources.get(i))
+							.getString("version");
+					Long prevDownload = (long) 0;
+					if(!((JSONObject) allResources.get(i)).isNull("downloaded_at")) {
+						prevDownload = ((JSONObject) allResources.get(i))
+						.getLong("downloaded_at");
+					}
+					if (!prevVersion.equals(version)) {
+						downloaded = "n";
+					} else {
+						if (cachelevel.equals("nocache")) {
+							downloaded = "n";
+						} else if (cachelevel.equals("static")) {
+							version = version.replaceAll("\\.", "")
+									.replaceAll(" ", "").replaceAll(":", "")
+									.replaceAll("-", "");
+							if (AppUtil.getDate() < Long.parseLong(version)
+									&& prevDownload < Long.parseLong(version)) {
+								downloaded = "n";
+							}
+						}
+					}
 					System.out.println("resource=========>" + resource);
-					((JSONObject) allResources.get(i)).put("downloaded", "n");
+					((JSONObject) allResources.get(i)).put("downloaded",
+							downloaded);
 					getResources(resource);
 				}
 			} catch (Exception e) {
@@ -159,13 +181,14 @@ public class MainActivity extends ActionBarActivity {
 					if (filePath.equals(resource)) {
 						((JSONObject) allResources.get(i)).put("downloaded",
 								"y");
+						((JSONObject) allResources.get(i)).put("downloaded_at",
+								AppUtil.getDate());
 						break;
 					}
 				}
 				if (filePath.equals("/index.html")) {
 					if (!ASSETS_YN) {
 						// launchWebView();
-						FORCE_YN = false;
 					} else {
 						ASSETS_YN = false;
 					}
@@ -181,7 +204,7 @@ public class MainActivity extends ActionBarActivity {
 			try {
 				filePath = STORAGE_DIR + "/" + fileNm;
 				File file = new File(filePath);
-				if (file.exists() && !FORCE_YN) {
+				if (file.exists() && CACHE_LV == 2) {
 					System.out.println("filePath exist ==> " + filePath);
 					listener.callbackResources(fileNm);
 				} else {
@@ -246,7 +269,8 @@ public class MainActivity extends ActionBarActivity {
 			String filePath = STORAGE_DIR + "/index.html";
 			File file = new File(filePath);
 			if (file.exists() && !ASSETS_YN) {
-				// String html = getFromFile(filePath, "utf-8").toString();
+				// String html = AppUtil.getFromFile(filePath,
+				// "utf-8").toString();
 				System.out.println(filePath + "->" + file.exists());
 				myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
 			} else {
@@ -374,61 +398,40 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 
-	/**
-	 * <pre>
-	 * </pre>
-	 *
-	 * @param file
-	 * @param strChar
-	 * @return String
-	 */
-	public static StringBuffer getFromFile(String fileName, String strChar)
-			throws IOException {
-		if (strChar == null) {
-			@SuppressWarnings("resource")
-			Scanner scanner = new Scanner(new File(fileName))
-					.useDelimiter("\\Z");
-			String contents = scanner.next();
-			scanner.close();
-			return new StringBuffer(contents);
+	private class ProgressTimerTask extends TimerTask {
+		@Override
+		public void run() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					refreshResource();
+				}
+			});
 		}
+	}
 
-		if (strChar.equals(""))
-			strChar = null;
-
-		StringBuffer sb = new StringBuffer(1000);
-		InputStreamReader is = null;
-		BufferedReader in = null;
-		String lineSep = System.getProperty("line.separator");
-
+	private void refreshResource() {
 		try {
-			File f = new File(fileName);
-			if (f.exists()) {
-				if (strChar != null)
-					is = new InputStreamReader(new FileInputStream(f), strChar);
-				else
-					is = new InputStreamReader(new FileInputStream(f));
-				in = new BufferedReader(is);
-				String str = "";
-
-				@SuppressWarnings("unused")
-				int readed = 0;
-				while ((str = in.readLine()) != null) {
-					if (strChar != null)
-						readed += (str.getBytes(strChar).length);
-					else
-						readed += (str.getBytes().length);
-					sb.append(str + lineSep);
+			CACHE_LV = 2;
+			StrictMode.enableDefaults();
+			for (int i = 0; i < allResources.length(); i++) {
+				String downloaded = ((JSONObject) allResources.get(i))
+						.getString("downloaded");
+				if (downloaded != null && downloaded.equals("n")) {
+					System.out.println("========>"
+							+ ((JSONObject) allResources.get(i))
+									.getString("resource"));
+					CACHE_LV = 1;
+					break;
 				}
 			}
+			if (CACHE_LV == 2 && allResources.length() > 0) {
+				launchWebView();
+			}
+			new GetHttpResourceTask().execute(RESOURCE_DOMAIN
+					+ "/resources.json");
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (is != null)
-				is.close();
-			if (in != null)
-				in.close();
 		}
-		return sb;
 	}
 }
