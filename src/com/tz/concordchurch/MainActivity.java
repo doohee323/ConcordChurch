@@ -38,7 +38,7 @@ public class MainActivity extends ActionBarActivity {
 
 	static String RESOURCE_DOMAIN = "http://52.0.156.206:9000";
 	static Boolean FORCE_YN = false;
-
+	static Boolean ASSETS_YN = false;
 	public WebView myWebView = null;
 
 	public static final String SD_DIR = Environment
@@ -58,6 +58,7 @@ public class MainActivity extends ActionBarActivity {
 		StrictMode.enableDefaults();
 		try {
 			WebResource listener = new WebResource();
+			ASSETS_YN = true;
 			listener.launchWebView();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -79,12 +80,12 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	protected void onStart() {
 		StrictMode.enableDefaults();
-		try {
-			new GetHttpResourceTask().execute(RESOURCE_DOMAIN
-					+ "/resources.json");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			new GetHttpResourceTask().execute(RESOURCE_DOMAIN
+//					+ "/resources.json");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		super.onStart();
 	}
 
@@ -141,6 +142,13 @@ public class MainActivity extends ActionBarActivity {
 				WebSettings webSettings = myWebView.getSettings();
 				webSettings.setJavaScriptEnabled(true);
 				webSettings.setBuiltInZoomControls(true);
+				
+				webSettings.setDomStorageEnabled(true);
+				webSettings.setDatabaseEnabled(true);
+			    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+			        File databasePath = getDatabasePath("yourDbName");
+			        webSettings.setDatabasePath(databasePath.getPath());
+			    }
 				myWebView.setWebViewClient(new WebViewClient() {
 					@Override
 					public void onPageStarted(WebView view, String url,
@@ -169,7 +177,7 @@ public class MainActivity extends ActionBarActivity {
 
 				String filePath = STORAGE_DIR + "/index.html";
 				File file = new File(filePath);
-				if (file.exists()) {
+				if (file.exists() && !ASSETS_YN) {
 					// String html = getFromFile(filePath, "utf-8").toString();
 					System.out.println(filePath + "->" + file.exists());
 					myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
@@ -177,6 +185,7 @@ public class MainActivity extends ActionBarActivity {
 					myWebView.loadUrl("file:///android_asset/www/index.html");
 					new GetHttpResourceTask().execute(RESOURCE_DOMAIN
 							+ "/resources.json");
+					ASSETS_YN = true;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
