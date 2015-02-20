@@ -10,7 +10,7 @@
  */
 
 var config = {
-	api_url:'http://192.168.1.5:3005'
+	api_url:'http://52.0.156.206:3000'
 };
  
 angular

@@ -36,9 +36,11 @@ import android.webkit.WebViewClient;
 
 public class MainActivity extends ActionBarActivity {
 
-	static String RESOURCE_DOMAIN = "http://52.0.156.206:9000";
+	// static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
+	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
 	static Boolean FORCE_YN = false;
 	static Boolean ASSETS_YN = false;
+	static Boolean START_YN = false;
 	public WebView myWebView = null;
 
 	public static final String SD_DIR = Environment
@@ -79,14 +81,17 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onStart() {
-		StrictMode.enableDefaults();
-//		try {
-//			new GetHttpResourceTask().execute(RESOURCE_DOMAIN
-//					+ "/resources.json");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		super.onStart();
+		if(!START_YN) {
+			START_YN = true;
+			StrictMode.enableDefaults();
+			try {
+				new GetHttpResourceTask().execute(RESOURCE_DOMAIN
+						+ "/resources.json");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			super.onStart();
+		}
 	}
 
 	@Override
@@ -130,8 +135,13 @@ public class MainActivity extends ActionBarActivity {
 
 		public void callbackResources(String fileNm) {
 			if (fileNm.equals("index.html")) {
-				launchWebView();
-				FORCE_YN = false;
+				START_YN = false;
+				if (!ASSETS_YN) {
+					launchWebView();
+					FORCE_YN = false;
+				} else {
+					ASSETS_YN = false;
+				}
 			}
 		}
 
@@ -142,13 +152,13 @@ public class MainActivity extends ActionBarActivity {
 				WebSettings webSettings = myWebView.getSettings();
 				webSettings.setJavaScriptEnabled(true);
 				webSettings.setBuiltInZoomControls(true);
-				
+
 				webSettings.setDomStorageEnabled(true);
 				webSettings.setDatabaseEnabled(true);
-			    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-			        File databasePath = getDatabasePath("yourDbName");
-			        webSettings.setDatabasePath(databasePath.getPath());
-			    }
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+					File databasePath = getDatabasePath("yourDbName");
+					webSettings.setDatabasePath(databasePath.getPath());
+				}
 				myWebView.setWebViewClient(new WebViewClient() {
 					@Override
 					public void onPageStarted(WebView view, String url,
@@ -183,8 +193,6 @@ public class MainActivity extends ActionBarActivity {
 					myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
 				} else {
 					myWebView.loadUrl("file:///android_asset/www/index.html");
-					new GetHttpResourceTask().execute(RESOURCE_DOMAIN
-							+ "/resources.json");
 					ASSETS_YN = true;
 				}
 			} catch (Exception e) {
@@ -283,13 +291,18 @@ public class MainActivity extends ActionBarActivity {
 					try {
 						output.close();
 						input.close();
-						System.out.println(STORAGE_DIR + "/" + fileNm + "->"
-								+ new File(STORAGE_DIR + "/" + fileNm).exists());
+						System.out
+								.println(STORAGE_DIR
+										+ "/"
+										+ fileNm
+										+ "->"
+										+ new File(STORAGE_DIR + "/" + fileNm)
+												.exists());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				// listener.callbackResources(fileNm);
+				listener.callbackResources(fileNm);
 			}
 		}
 	}
