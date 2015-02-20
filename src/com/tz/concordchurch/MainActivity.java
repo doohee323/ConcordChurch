@@ -39,16 +39,13 @@ import com.facebook.stetho.Stetho;
 public class MainActivity extends ActionBarActivity {
 
 	// static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
-	// static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
-	static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
+	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
+	// static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
-	static int REFRESH_TIME = 50000; // refresh interval, milisecond
+	static int REFRESH_TIME = 500000; // refresh interval, milisecond
 	static Boolean ASSETS_YN = false;
 	public WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
-	// cachelevel
-	// - static + version : according to the version
-	// - nocache
 
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
@@ -63,7 +60,7 @@ public class MainActivity extends ActionBarActivity {
 				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_main);
 		StrictMode.enableDefaults();
 		try {
@@ -77,14 +74,14 @@ public class MainActivity extends ActionBarActivity {
 			e.printStackTrace();
 		}
 
-//		Stetho.initialize(
-//			      Stetho.newInitializerBuilder(this)
-//			        .enableDumpapp(
-//			            Stetho.defaultDumperPluginsProvider(this))
-//			        .enableWebKitInspector(
-//			            Stetho.defaultInspectorModulesProvider(this))
-//			        .build());
-		
+		// Stetho.initialize(
+		// Stetho.newInitializerBuilder(this)
+		// .enableDumpapp(
+		// Stetho.defaultDumperPluginsProvider(this))
+		// .enableWebKitInspector(
+		// Stetho.defaultInspectorModulesProvider(this))
+		// .build());
+
 	}
 
 	// myWebView.loadUrl("http://192.168.1.5:3000");
@@ -143,9 +140,10 @@ public class MainActivity extends ActionBarActivity {
 					String prevVersion = ((JSONObject) allResources.get(i))
 							.getString("version");
 					Long prevDownload = (long) 0;
-					if(!((JSONObject) allResources.get(i)).isNull("downloaded_at")) {
+					if (!((JSONObject) allResources.get(i))
+							.isNull("downloaded_at")) {
 						prevDownload = ((JSONObject) allResources.get(i))
-						.getLong("downloaded_at");
+								.getLong("downloaded_at");
 					}
 					if (!prevVersion.equals(version)) {
 						downloaded = "n";

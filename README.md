@@ -25,6 +25,13 @@ Support off-line web-app, version control for web resource
 		- If version changed file exist, cache the file: 
 			Environment.getExternalStorageDirectory() + "/churchapp"
 
+ㅇ resources.json
 
-
-
+	- domain: web server for download
+	- foreceYn: download all
+	- resources: version controlled resources
+		- resource: file path
+		- cachelevel: 
+			- static + version : according to the version
+			- nocache
+		- version: version date ex) "2015-02-25 14:01:01.01"
