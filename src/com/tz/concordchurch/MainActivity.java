@@ -34,7 +34,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.facebook.stetho.Stetho;
+//import com.facebook.stetho.Stetho;
 
 public class MainActivity extends ActionBarActivity {
 
