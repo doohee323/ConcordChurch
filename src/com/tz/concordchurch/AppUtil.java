@@ -3,12 +3,13 @@ package com.tz.concordchurch;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Scanner;
 
 public class AppUtil {
 
@@ -20,17 +21,7 @@ public class AppUtil {
 	 * @param strChar
 	 * @return String
 	 */
-	public static StringBuffer getFromFile(String fileName, String strChar)
-			throws IOException {
-		if (strChar == null) {
-			@SuppressWarnings("resource")
-			Scanner scanner = new Scanner(new File(fileName))
-					.useDelimiter("\\Z");
-			String contents = scanner.next();
-			scanner.close();
-			return new StringBuffer(contents);
-		}
-
+	public static StringBuffer getFromFile(String fileName, String strChar) {
 		if (strChar.equals(""))
 			strChar = null;
 
@@ -62,10 +53,14 @@ public class AppUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (is != null)
-				is.close();
-			if (in != null)
-				in.close();
+			try {
+				if (is != null)
+					is.close();
+				if (in != null)
+					in.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		return sb;
 	}
@@ -79,5 +74,35 @@ public class AppUtil {
 		if (curTime.length() == 15)
 			curTime += "0";
 		return Long.parseLong(curTime);
+	}
+
+	public static void write(String aFileNm, String str, String aCharSet,
+			boolean bAppend) {
+		OutputStreamWriter os = null;
+		FileOutputStream fos = null;
+		PrintWriter outp = null;
+		try {
+			fos = new FileOutputStream(aFileNm, bAppend);
+			if (aCharSet == null) {
+				os = new OutputStreamWriter(fos);
+			} else {
+				os = new OutputStreamWriter(fos, aCharSet);
+			}
+			outp = new PrintWriter(os, true);
+			outp.println(str);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (os != null)
+					os.close();
+				if (fos != null)
+					fos.close();
+				if (outp != null)
+					outp.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

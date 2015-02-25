@@ -1,0 +1,44 @@
+
+<div ng-controller="SwipeCtrl" data-ng-init="retrieve( 2 )">
+	<ul rn-carousel rn-carousel-indicator="true" id="carousel1">
+    <li ng-repeat="item in words">
+			<div style="background-image:url({{ item.img }});" id="carousel_msg1">
+      	<p style='margin-top: 0px;margin-left: 10px;color:#ffffff; padding-top: 5px;'>{{ item.title }} </p>
+				<div id="container1">
+					<div id="block1">_</div>
+				<div>    
+				<div id="center_align1">
+					<a ng-click="open(item);" class="myButton" style="width:50px">Video</a>
+					<a ng-click="sendSns('facebook')" class="myButton" style="width:50px">Facebook</a>
+				<div>    
+			</div>
+    </li>
+  </ul>
+</div>
+
+<script type="text/javascript">
+	var height = $(window).height();
+	var top1 = height - 170;
+	$("#center_align1").css({
+	   "position" : "absolute",
+	   "top" : top1
+	});
+	
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

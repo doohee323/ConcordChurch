@@ -12,11 +12,9 @@
     <!-- build:css(.) styles/style.css -->
     <link rel="stylesheet" href="styles/style.css">
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
+    <link rel="stylesheet" href="bower_components/angular-carousel/dist/angular-carousel.css" />
     <!-- endbower -->
     <!-- endbuild -->
-    <link rel="stylesheet" href="https://rawgit.com/angular/bower-material/master/angular-material.css">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <!-- build:css(.tmp) styles/main.css -->
     <!-- endbuild -->
 		<!----webfonts---->
@@ -25,7 +23,7 @@
 		<!--script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
 		</script-->
   </head>
-  <body ng-app="concordchurchApp">
+  <body ng-app="concordchurchApp" style="margin:0px">
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -64,8 +62,8 @@
     <script src="bower_components/angular-route/angular-route.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/angular-aria/angular-aria.js"></script>
-    <script src="bower_components/angular-material/angular-material.js"></script>
     <script src="bower_components/moment/moment.js"></script>
+    <script src="bower_components/angular-carousel/dist/angular-carousel.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -76,10 +74,12 @@
         <script src="scripts/common/utils/msgconst.js"></script>
         <script src="scripts/common/utils/utils.js"></script>
         <script src="scripts/controllers/main.js"></script>
+        <script src="scripts/controllers/swipe.js"></script>
 
         <script src="scripts/controllers/words.js"></script>
         <script src="scripts/services/words_service.js"></script>
         <script src="scripts/controllers/video.js"></script>
+        
         <!-- endbuild -->
 </body>
 </html>

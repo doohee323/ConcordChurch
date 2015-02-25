@@ -1,36 +1,31 @@
 'use strict';
 
-/**
- * @ngdoc function
- * @name concordchurchApp.controller:WordsCtrl
- * @description
- * # WordsCtrl
- * Controller of the concordchurchApp
- */
-var bRun;
 angular.module('concordchurchApp')
-  .controller('WordsCtrl', function ($rootScope, $scope, $window, $stateParams, $state, $http, $location, $timeout, config, MeService) {
-		$scope.$location = $location;
-		var id = $stateParams.id;
-		var currentRow = 0;
-		
-		$scope.alert = '';
-		$scope.showListBottomSheet = function($event) {
-		  $scope.alert = '';
-		};	
-		$scope.showGridBottomSheet = function($event) {
-	    $scope.alert = '';
-	  };	
+.controller('SwipeCtrl', function($scope, $http, $state, MeService) {
+
+  var prefix = "/api/bunch/v2/me/";
 	
-    $scope.retrieve = function(id) {
-	    if(!id) {
-	    	id = currentRow + 1;
-	    } else {
-	    	currentRow = id;
-	    }
+	var currentRow = 0;
+  $scope.retrieve = function(id) {
+    if(!id) {
+    	id = currentRow + 1;
+    } else {
+    	currentRow = id;
+    }
+    
+    var key = id;
+		var datast = localStorage.getItem(prefix + key);
+		if(datast) {
+			$scope.words = JSON.parse(datast);
+	    config.curitem = $scope.words[0];
+		} else {
 			MeService.R.get({'id':id}, function(data) {
 				if(data.rows) {
 					$scope.words = data.rows;
+					localStorage.setItem(prefix + key, JSON.stringify($scope.words));
+					if(Android) {
+						Android.cacheJson(JSON.stringify($scope.words));
+					}
 			    config.curitem = $scope.words[0];
 				}
 			}, function(error) {
@@ -40,40 +35,17 @@ angular.module('concordchurchApp')
 		   "video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1",
 		   "desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"},{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570","title":"그를 믿는 자마다 멸망하지 않고","content":"요3:16-21","speaker":"길영환 목사","date":"2014-12-14","bible":"[요] 3:16 하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마��� 멸망치 ...","video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1","desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"},{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570","title":"영생(Eternal Life)","content":"요5:24","speaker":"길영환 목사","date":"2014-12-28","bible":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영...","video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1","desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"},{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570","title":"다니엘의 감사","content":"단6:10","speaker":"길영환 목사","date":"2014-11-09","bible":"[단] 6:10 다니엘이 이 조서에 어인이 찍힌 것을 알고도 자기 집에 돌아가서는 그 방의 예루살렘...","video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1","desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"}];
 			});
-    }
-    
-    $scope.open = function(item) {
-    	config.item = item;
-    	$state.go('video');
-			return;    
-    	item = JSON.parse(item);
-    	$window.open(item.video, '', 'scrollbars=no,resizeable=no,toolbar=no,status=no,top=100,left=100,width=741,height=472');
-    }
-    
-  $scope.title1 = 'Button';
-  $scope.title4 = 'Warn';
-  $scope.isDisabled = true;
-  $scope.googleUrl = 'http://google.com';    
-})
+	  }
+	}
 
-.controller('ListBottomSheetCtrl', function($scope, config) {
-})
-.controller('GridBottomSheetCtrl', function($scope, config) {
-  $scope.items = [
-    { name: 'facebook', icon: 'facebook' },
-    { name: 'twitter', icon: 'twitter' },
-    { name: 'google', icon: 'google' },
-    { name: 'email', icon: 'email' },
-    { name: 'sms', icon: 'sms' },
-    { name: 'copy', icon: 'copy' }
-  ];
-  $scope.listItemClick = function($index) {
-    var clickedItem = $scope.items[$index];
-//    if(clickedItem.name == 'facebook') {
-    	$scope.sendSns(clickedItem.name);
-//    }
-  };
-  
+  $scope.open = function(item) {
+  	config.item = item;
+  	$state.go('video');
+		return;    
+  	item = JSON.parse(item);
+  	$window.open(item.video, '', 'scrollbars=no,resizeable=no,toolbar=no,status=no,top=100,left=100,width=741,height=472');
+  }
+
 	$scope.sendSns = function(sns) {
 		config.curitem;
 		var url = config.curitem.link;
@@ -127,5 +99,14 @@ angular.module('concordchurchApp')
 	            }
 	            break;
 		    }
-  	}      
-})
+  	}
+});
+
+var gfRefresh = function(prefix) {
+	debugger;
+	for (var key in localStorage){
+		if(key.indexOf(prefix) > -1) {
+			localStorage.removeItem(key);
+		}
+	}
+}

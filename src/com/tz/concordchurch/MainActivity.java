@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,10 +30,12 @@ import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 //import com.facebook.stetho.Stetho;
 
@@ -42,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
 	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
 	// static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
-	static int REFRESH_TIME = 500000; // refresh interval, milisecond
+	static int REFRESH_TIME = 50000; // refresh interval, milisecond
 	static Boolean ASSETS_YN = false;
 	public WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
@@ -224,6 +227,7 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@SuppressLint("SetJavaScriptEnabled")
 	public void launchWebView() {
 		try {
@@ -235,8 +239,10 @@ public class MainActivity extends ActionBarActivity {
 			webSettings.setDomStorageEnabled(true);
 			webSettings.setDatabaseEnabled(true);
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-				File databasePath = getDatabasePath("yourDbName");
-				webSettings.setDatabasePath(databasePath.getPath());
+				webSettings.setDatabasePath(myWebView.getContext()
+						.getFilesDir().getPath()
+						+ myWebView.getContext().getPackageName()
+						+ "/databases/");
 			}
 			myWebView.setWebViewClient(new WebViewClient() {
 				@Override
@@ -260,8 +266,8 @@ public class MainActivity extends ActionBarActivity {
 						true);
 			}
 
-			// myWebView.addJavascriptInterface(new WebAppInterface(this),
-			// "Android");
+			myWebView.addJavascriptInterface(new WebAppInterface(this),
+					"Android");
 			myWebView.setWebChromeClient(new CustomWebChromeClient());
 
 			String filePath = STORAGE_DIR + "/index.html";
@@ -271,9 +277,10 @@ public class MainActivity extends ActionBarActivity {
 				// "utf-8").toString();
 				System.out.println(filePath + "->" + file.exists());
 				myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
+				myWebView.loadUrl("javascript:gfRefresh('/api/bunch/v2/me/')");
 			} else {
 				myWebView.loadUrl("file:///android_asset/www/index.html");
-				ASSETS_YN = true;
+				ASSETS_YN = false;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -432,4 +439,5 @@ public class MainActivity extends ActionBarActivity {
 			e.printStackTrace();
 		}
 	}
+
 }

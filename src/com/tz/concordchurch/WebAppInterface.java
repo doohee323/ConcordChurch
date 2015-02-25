@@ -2,19 +2,28 @@ package com.tz.concordchurch;
 
 import android.content.Context;
 import android.webkit.JavascriptInterface;
-import android.widget.Toast;
 
 public class WebAppInterface {
-    Context mContext;
+	Context mContext;
 
-    /** Instantiate the interface and set the context */
-    WebAppInterface(Context c) {
-        mContext = c;
-    }
+	WebAppInterface(Context c) {
+		mContext = c;
+	}
 
-    /** Show a toast from the web page */
-    @JavascriptInterface
-    public void showToast(String toast) {
-        Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
-    }
+	@JavascriptInterface
+	public void cacheJson(String toast) {
+		if (toast != null) {
+			String filePath = MainActivity.STORAGE_DIR + "/dataset.json";
+			AppUtil.write(filePath, toast, "utf-8", false);
+		}
+		// Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
+	}
+	
+	@JavascriptInterface
+	public String getJson() {
+		String filePath = MainActivity.STORAGE_DIR + "/dataset.json";
+		//new File(filePath).delete();
+		return AppUtil.getFromFile(filePath, "utf-8").toString();
+	}
+	
 }
