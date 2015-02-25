@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
@@ -30,14 +31,12 @@ import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.JavascriptInterface;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
-//import com.facebook.stetho.Stetho;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -45,10 +44,11 @@ public class MainActivity extends ActionBarActivity {
 	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
 	// static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
-	static int REFRESH_TIME = 50000; // refresh interval, milisecond
+	static int REFRESH_TIME = 500000; // refresh interval, milisecond
 	static Boolean ASSETS_YN = false;
 	public WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
+	Context mContext;
 
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
@@ -63,11 +63,24 @@ public class MainActivity extends ActionBarActivity {
 				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
-
+		
+//		if (Build.VERSION.SDK_INT < 16) {
+//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        }
+		
+		mContext = getBaseContext();
+		
+//	    //Remove notification bar
+//	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
 		setContentView(R.layout.activity_main);
-		StrictMode.enableDefaults();
+
+
 		try {
+			StrictMode.enableDefaults();
 			ASSETS_YN = true;
+
 			launchWebView();
 
 			Timer progressTimer = new Timer();
@@ -76,15 +89,6 @@ public class MainActivity extends ActionBarActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// Stetho.initialize(
-		// Stetho.newInitializerBuilder(this)
-		// .enableDumpapp(
-		// Stetho.defaultDumperPluginsProvider(this))
-		// .enableWebKitInspector(
-		// Stetho.defaultInspectorModulesProvider(this))
-		// .build());
-
 	}
 
 	// myWebView.loadUrl("http://192.168.1.5:3000");
@@ -232,18 +236,20 @@ public class MainActivity extends ActionBarActivity {
 	public void launchWebView() {
 		try {
 			myWebView = (WebView) findViewById(R.id.webview);
+			myWebView.setBackgroundColor(Color.RED);
 			WebSettings webSettings = myWebView.getSettings();
 			webSettings.setJavaScriptEnabled(true);
 			webSettings.setBuiltInZoomControls(true);
-
 			webSettings.setDomStorageEnabled(true);
 			webSettings.setDatabaseEnabled(true);
+			webSettings.setBuiltInZoomControls(true);
+			webSettings.setDisplayZoomControls(false);
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-				webSettings.setDatabasePath(myWebView.getContext()
-						.getFilesDir().getPath()
+				webSettings.setDatabasePath(mContext.getFilesDir().getPath()
 						+ myWebView.getContext().getPackageName()
 						+ "/databases/");
 			}
+			
 			myWebView.setWebViewClient(new WebViewClient() {
 				@Override
 				public void onPageStarted(WebView view, String url,
@@ -256,22 +262,20 @@ public class MainActivity extends ActionBarActivity {
 					super.onPageFinished(view, url);
 				}
 			});
-			// myWebView.setWebChromeClient(new WebChromeClient() {
-			// });
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				WebView.setWebContentsDebuggingEnabled(true);
 			}
 			if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-				myWebView.getSettings().setAllowUniversalAccessFromFileURLs(
-						true);
+				webSettings.setAllowUniversalAccessFromFileURLs(true);
 			}
-
 			myWebView.addJavascriptInterface(new WebAppInterface(this),
 					"Android");
 			myWebView.setWebChromeClient(new CustomWebChromeClient());
 
 			String filePath = STORAGE_DIR + "/index.html";
 			File file = new File(filePath);
+			// Toast.makeText(mContext, Boolean.toString(file.exists()),
+			// Toast.LENGTH_SHORT).show();
 			if (file.exists() && !ASSETS_YN) {
 				// String html = AppUtil.getFromFile(filePath,
 				// "utf-8").toString();
