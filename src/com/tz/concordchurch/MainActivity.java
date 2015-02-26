@@ -35,6 +35,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -61,20 +62,9 @@ public class MainActivity extends Activity {
 				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
-		
-//		if (Build.VERSION.SDK_INT < 16) {
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        }
-		
+
 		mContext = getBaseContext();
-		
-//	    //Remove notification bar
-//	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
 		setContentView(R.layout.activity_main);
-
-
 		try {
 			StrictMode.enableDefaults();
 			ASSETS_YN = true;
@@ -247,7 +237,7 @@ public class MainActivity extends Activity {
 						+ myWebView.getContext().getPackageName()
 						+ "/databases/");
 			}
-			
+
 			myWebView.setWebViewClient(new WebViewClient() {
 				@Override
 				public void onPageStarted(WebView view, String url,
@@ -272,8 +262,8 @@ public class MainActivity extends Activity {
 
 			String filePath = STORAGE_DIR + "/index.html";
 			File file = new File(filePath);
-			// Toast.makeText(mContext, Boolean.toString(file.exists()),
-			// Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, Boolean.toString(file.exists()),
+					Toast.LENGTH_SHORT).show();
 			if (file.exists() && !ASSETS_YN) {
 				// String html = AppUtil.getFromFile(filePath,
 				// "utf-8").toString();
