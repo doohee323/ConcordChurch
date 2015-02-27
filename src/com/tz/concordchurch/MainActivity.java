@@ -29,12 +29,19 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -48,6 +55,8 @@ public class MainActivity extends Activity {
 	public WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
 	Context mContext;
+	float downYValue;
+	float upYValue;
 
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
@@ -69,7 +78,7 @@ public class MainActivity extends Activity {
 			StrictMode.enableDefaults();
 			ASSETS_YN = true;
 
-			launchWebView();
+			//launchWebView();
 
 			Timer progressTimer = new Timer();
 			ProgressTimerTask timeTask = new ProgressTimerTask();
@@ -155,7 +164,7 @@ public class MainActivity extends Activity {
 							}
 						}
 					}
-					System.out.println("resource=========>" + resource);
+					Log.d("MainActivity", "resource=========>" + resource);
 					((JSONObject) allResources.get(i)).put("downloaded",
 							downloaded);
 					getResources(resource);
@@ -198,10 +207,10 @@ public class MainActivity extends Activity {
 				filePath = STORAGE_DIR + "/" + fileNm;
 				File file = new File(filePath);
 				if (file.exists() && CACHE_LV == 2) {
-					System.out.println("filePath exist ==> " + filePath);
+					Log.d("MainActivity", "filePath exist ==> " + filePath);
 					listener.callbackResources(fileNm);
 				} else {
-					System.out.println("filePath not exist ==> " + filePath);
+					Log.d("MainActivity", "filePath not exist ==> " + filePath);
 					filePath = STORAGE_DIR + "/" + fileNm;
 					filePath = filePath.substring(0, filePath.lastIndexOf("/"));
 					File dir = new File(filePath);
@@ -225,9 +234,9 @@ public class MainActivity extends Activity {
 		try {
 			myWebView = (WebView) findViewById(R.id.webview);
 			myWebView.setBackgroundColor(Color.RED);
+			myWebView.setWebViewClient(new MyWebClient());
 			WebSettings webSettings = myWebView.getSettings();
 			webSettings.setJavaScriptEnabled(true);
-			webSettings.setBuiltInZoomControls(true);
 			webSettings.setDomStorageEnabled(true);
 			webSettings.setDatabaseEnabled(true);
 			webSettings.setBuiltInZoomControls(true);
@@ -260,6 +269,40 @@ public class MainActivity extends Activity {
 					"Android");
 			myWebView.setWebChromeClient(new CustomWebChromeClient());
 
+			myWebView.setOnTouchListener(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN: {
+						Log.i("ACTION_DOWN", "OK!!!!!!");
+						downYValue = event.getY();
+						break;
+					}
+					case MotionEvent.ACTION_UP: {
+						Log.i("ACTION_UP", "OK!!!!!!");
+						upYValue = event.getY();
+						if ((upYValue - downYValue) > 1000) {
+							downYValue = 0;
+							upYValue = 0;
+							// requestWindowFeature(Window.FEATURE_NO_TITLE);
+							// getWindow().addFlags(
+							// WindowManager.LayoutParams.FLAG_FULLSCREEN);
+							// getWindow()
+							// .clearFlags(
+							// WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+//							toggleFullscreen(true);
+							Toast.makeText(mContext, "true",
+									Toast.LENGTH_SHORT).show();
+							Log.i("ACTION_UP", "OK!!!!!!");
+						}
+						break;
+					}
+
+					}
+					return false;
+				}
+			});
+
 			String filePath = STORAGE_DIR + "/index.html";
 			File file = new File(filePath);
 			Toast.makeText(mContext, Boolean.toString(file.exists()),
@@ -267,7 +310,7 @@ public class MainActivity extends Activity {
 			if (file.exists() && !ASSETS_YN) {
 				// String html = AppUtil.getFromFile(filePath,
 				// "utf-8").toString();
-				System.out.println(filePath + "->" + file.exists());
+				Log.d("MainActivity", filePath + "->" + file.exists());
 				myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
 				myWebView.loadUrl("javascript:gfRefresh('/api/bunch/v2/me/')");
 			} else {
@@ -342,7 +385,7 @@ public class MainActivity extends Activity {
 					try {
 						output.close();
 						input.close();
-						System.out.println(filePath + "/" + fileNm + "->"
+						Log.d("MainActivity", filePath + "/" + fileNm + "->"
 								+ new File(filePath + "/" + fileNm).exists());
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -415,9 +458,10 @@ public class MainActivity extends Activity {
 				String downloaded = ((JSONObject) allResources.get(i))
 						.getString("downloaded");
 				if (downloaded != null && downloaded.equals("n")) {
-					System.out.println("========>"
-							+ ((JSONObject) allResources.get(i))
-									.getString("resource"));
+					Log.d("MainActivity",
+							"========>"
+									+ ((JSONObject) allResources.get(i))
+											.getString("resource"));
 					CACHE_LV = 1;
 					break;
 				}
@@ -432,4 +476,52 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	private Button rec, end, play, stop;
+
+	private int x, y, c;
+	protected boolean clicked = false;
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK) && myWebView.canGoBack()) {
+			myWebView.goBack();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (clicked) {
+			x = (int) event.getX();
+			y = (int) event.getY();
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_MOVE:
+			case MotionEvent.ACTION_UP:
+			}
+			Log.d("MainActivity", "x = " + x + ", y = " + y);
+		}
+		return false;
+	};
+
+	public void onClick(View v) {
+		if (v == rec) {
+			clicked = true;
+		} else if (v == end) {
+			clicked = false;
+		} else if (v == play) {
+		} else if (v == stop) {
+		}
+	}
+
+	private void toggleFullscreen(boolean fullscreen) {
+		WindowManager.LayoutParams attrs = getWindow().getAttributes();
+		if (fullscreen) {
+			attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+		} else {
+			attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+		}
+		getWindow().setAttributes(attrs);
+	}
 }
