@@ -19,7 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -29,14 +29,13 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -44,7 +43,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
 	// static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
 	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
@@ -57,7 +56,7 @@ public class MainActivity extends Activity {
 	Context mContext;
 	float downYValue;
 	float upYValue;
-
+	ActionBar actionBar;
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
 	public static final String STORAGE_DIR = SD_DIR + "/churchapp";
@@ -71,6 +70,7 @@ public class MainActivity extends Activity {
 				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
+//		actionBar = getSupportActionBar();
 
 		mContext = getBaseContext();
 		setContentView(R.layout.activity_main);
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 			StrictMode.enableDefaults();
 			ASSETS_YN = true;
 
-			//launchWebView();
+			launchWebView();
 
 			Timer progressTimer = new Timer();
 			ProgressTimerTask timeTask = new ProgressTimerTask();
@@ -274,30 +274,20 @@ public class MainActivity extends Activity {
 				public boolean onTouch(View v, MotionEvent event) {
 					switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN: {
-						Log.i("ACTION_DOWN", "OK!!!!!!");
 						downYValue = event.getY();
 						break;
 					}
 					case MotionEvent.ACTION_UP: {
-						Log.i("ACTION_UP", "OK!!!!!!");
 						upYValue = event.getY();
 						if ((upYValue - downYValue) > 1000) {
 							downYValue = 0;
 							upYValue = 0;
-							// requestWindowFeature(Window.FEATURE_NO_TITLE);
-							// getWindow().addFlags(
-							// WindowManager.LayoutParams.FLAG_FULLSCREEN);
-							// getWindow()
-							// .clearFlags(
-							// WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-//							toggleFullscreen(true);
-							Toast.makeText(mContext, "true",
-									Toast.LENGTH_SHORT).show();
-							Log.i("ACTION_UP", "OK!!!!!!");
+							toggleFullscreen(true);
+							Toast.makeText(mContext, "true", Toast.LENGTH_SHORT)
+									.show();
 						}
 						break;
 					}
-
 					}
 					return false;
 				}
@@ -516,12 +506,19 @@ public class MainActivity extends Activity {
 	}
 
 	private void toggleFullscreen(boolean fullscreen) {
-		WindowManager.LayoutParams attrs = getWindow().getAttributes();
+		// requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		// WindowManager.LayoutParams attrs = getWindow().getAttributes();
 		if (fullscreen) {
-			attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			// attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			// getWindow().clearFlags(
+			// WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+			// requestWindowFeature(Window.FEATURE_NO_TITLE);
+//			actionBar.hide();			
 		} else {
-			attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			// attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			// getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
-		getWindow().setAttributes(attrs);
+		// getWindow().setAttributes(attrs);
 	}
 }
