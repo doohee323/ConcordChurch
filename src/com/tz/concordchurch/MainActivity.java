@@ -23,7 +23,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
@@ -50,7 +49,7 @@ public class MainActivity extends Activity {
 	// static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
 	static int REFRESH_TIME = 500000; // refresh interval, milisecond
-	static Boolean ASSETS_YN = false;
+	
 	public WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
 	Context mContext;
@@ -75,8 +74,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		try {
 			StrictMode.enableDefaults();
-			ASSETS_YN = true;
-
+			AppSettings.setAssetsYn(true);
 			launchWebView();
 
 			Timer progressTimer = new Timer();
@@ -188,10 +186,10 @@ public class MainActivity extends Activity {
 					}
 				}
 				if (filePath.equals("/index.html")) {
-					if (!ASSETS_YN) {
+					if (!AppSettings.getAssetsYn()) {
 						// launchWebView();
 					} else {
-						ASSETS_YN = false;
+						AppSettings.setAssetsYn(false);
 					}
 				}
 			} catch (JSONException e) {
@@ -295,7 +293,7 @@ public class MainActivity extends Activity {
 			File file = new File(filePath);
 			Toast.makeText(mContext, Boolean.toString(file.exists()),
 					Toast.LENGTH_SHORT).show();
-			if (file.exists() && !ASSETS_YN) {
+			if (file.exists() && !AppSettings.getAssetsYn()) {
 				// String html = AppUtil.getFromFile(filePath,
 				// "utf-8").toString();
 				Log.d("MainActivity", filePath + "->" + file.exists());
@@ -303,7 +301,7 @@ public class MainActivity extends Activity {
 				myWebView.loadUrl("javascript:gfRefresh('/api/bunch/v2/me/')");
 			} else {
 				myWebView.loadUrl("file:///android_asset/www/index.html");
-				ASSETS_YN = false;
+				AppSettings.setAssetsYn(false);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
