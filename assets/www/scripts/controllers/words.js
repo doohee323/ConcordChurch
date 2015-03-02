@@ -12,7 +12,8 @@ angular.module('concordchurchApp')
   .controller('WordsCtrl', function ($rootScope, $scope, $window, $stateParams, $state, $http, $location, $timeout, config, MeService) {
 		$scope.$location = $location;
 		var id = $stateParams.id;
-		var currentRow = 0;
+  	var prefix = "/api/bunch/v2/me/";
+		var currentRow = 1;
 		
 		$scope.alert = '';
 		$scope.showListBottomSheet = function($event) {
@@ -22,15 +23,33 @@ angular.module('concordchurchApp')
 	    $scope.alert = '';
 	  };	
 	
-    $scope.retrieve = function(id) {
+	  $scope.next = function(id) {
 	    if(!id) {
 	    	id = currentRow + 1;
-	    } else {
 	    	currentRow = id;
 	    }
+			$scope.retrieve(id);
+		}
+	
+	  $scope.prev = function(id) {
+	    if(!id) {
+	    	id = currentRow - 1;
+	    	currentRow = id;
+	    }
+			$scope.retrieve(id);
+		}
+		
+	  $scope.refresh = function(id) {
+			if(!id) {
+				id = currentRow;
+			}
 			MeService.R.get({'id':id}, function(data) {
 				if(data.rows) {
 					$scope.words = data.rows;
+					localStorage.setItem(prefix + id, JSON.stringify($scope.words));
+					if(Android) {
+						Android.cacheJson(JSON.stringify($scope.words));
+					}
 			    config.curitem = $scope.words[0];
 				}
 			}, function(error) {
@@ -40,7 +59,17 @@ angular.module('concordchurchApp')
 		   "video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1",
 		   "desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"},{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570","title":"그를 믿는 자마다 멸망하지 않고","content":"요3:16-21","speaker":"길영환 목사","date":"2014-12-14","bible":"[요] 3:16 하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마��� 멸망치 ...","video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1","desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"},{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570","title":"영생(Eternal Life)","content":"요5:24","speaker":"길영환 목사","date":"2014-12-28","bible":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영...","video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1","desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"},{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570","title":"다니엘의 감사","content":"단6:10","speaker":"길영환 목사","date":"2014-11-09","bible":"[단] 6:10 다니엘이 이 조서에 어인이 찍힌 것을 알고도 자기 집에 돌아가서는 그 방의 예루살렘...","video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1","desc":"[요] 5:24 내가 진실로 진실로 너희에게 이르노니 내 말을 듣고 또 나 보내신 이를 믿는 자는 영생을 얻었고 심판에 이르지 아니하나니 사망에서 생명으로 옮겼느니라아멘"}];
 			});
-    }
+		}
+	
+	  $scope.retrieve = function(id) {
+			var datast = localStorage.getItem(prefix + id);
+			if(datast) {
+				$scope.words = JSON.parse(datast);
+		    config.curitem = $scope.words[0];
+			} else {
+				$scope.refresh(id);
+		  }
+		}
     
     $scope.open = function(item) {
     	config.item = item;

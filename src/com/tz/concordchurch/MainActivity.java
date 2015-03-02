@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -29,7 +30,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,7 +43,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
 	// static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
 	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
@@ -70,7 +70,6 @@ public class MainActivity extends ActionBarActivity {
 				.detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
 				.penaltyLog().penaltyDeath().build());
 		super.onCreate(savedInstanceState);
-//		actionBar = getSupportActionBar();
 
 		mContext = getBaseContext();
 		setContentView(R.layout.activity_main);
@@ -233,7 +232,7 @@ public class MainActivity extends ActionBarActivity {
 	public void launchWebView() {
 		try {
 			myWebView = (WebView) findViewById(R.id.webview);
-			myWebView.setBackgroundColor(Color.RED);
+			//myWebView.setBackgroundColor(Color.TRANSPARENT);
 			myWebView.setWebViewClient(new MyWebClient());
 			WebSettings webSettings = myWebView.getSettings();
 			webSettings.setJavaScriptEnabled(true);
@@ -282,7 +281,6 @@ public class MainActivity extends ActionBarActivity {
 						if ((upYValue - downYValue) > 1000) {
 							downYValue = 0;
 							upYValue = 0;
-							toggleFullscreen(true);
 							Toast.makeText(mContext, "true", Toast.LENGTH_SHORT)
 									.show();
 						}
@@ -503,22 +501,5 @@ public class MainActivity extends ActionBarActivity {
 		} else if (v == play) {
 		} else if (v == stop) {
 		}
-	}
-
-	private void toggleFullscreen(boolean fullscreen) {
-		// requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-		// WindowManager.LayoutParams attrs = getWindow().getAttributes();
-		if (fullscreen) {
-			// attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			// getWindow().clearFlags(
-			// WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-			// requestWindowFeature(Window.FEATURE_NO_TITLE);
-//			actionBar.hide();			
-		} else {
-			// attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
-			// getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		}
-		// getWindow().setAttributes(attrs);
 	}
 }
