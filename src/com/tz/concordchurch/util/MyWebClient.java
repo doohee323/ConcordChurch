@@ -1,4 +1,4 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.util;
 
 import android.graphics.Bitmap;
 import android.webkit.WebView;

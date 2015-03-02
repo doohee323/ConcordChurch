@@ -1,31 +1,13 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.activity;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -35,12 +17,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.Toast;
+
+import com.tz.concordchurch.R;
+import com.tz.concordchurch.receiver.AppSettings;
+import com.tz.concordchurch.service.ResourceService;
 
 public class MainActivity extends Activity {
 
@@ -49,8 +31,8 @@ public class MainActivity extends Activity {
 	// static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
 	static int REFRESH_TIME = 500000; // refresh interval, milisecond
-	
-	public WebView myWebView = null;
+
+	private WebView myWebView = null;
 	JSONArray allResources = new JSONArray();
 	Context mContext;
 	float downYValue;
@@ -74,7 +56,8 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		try {
 			AppSettings.setAssetsYn(true);
-			launchWebView();
+			myWebView = (WebView) findViewById(R.id.webview);
+			ResourceService.getInstance().launchWebView(myWebView);
 
 			Timer progressTimer = new Timer();
 			ProgressTimerTask timeTask = new ProgressTimerTask();
@@ -83,18 +66,6 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-
-	// myWebView.loadUrl("http://192.168.1.5:3000");
-	// ��������������������� ������������������ ������������ ������������ ������
-	// 1. /ConcordChurch/assets/www/index.html ������ ������ ������
-	// myWebView.loadUrl("file:///android_asset/www/index.html");
-	// AssetManager am = getAssets();
-	// am.openNonAssetFd("assets/test.png");
-	// 2. ������ ������������ ������ ��������� ������
-	// myWebView.loadUrl("file:///" + STORAGE_DIR + "/index.html");
-	// 3. ������ ������������ ������ string������ ������
-	// myWebView.loadDataWithBaseURL("file:///" + STORAGE_DIR, html,
-	// "text/html", "utf-8", null);
 
 	@Override
 	protected void onStart() {
@@ -156,7 +127,7 @@ public class MainActivity extends Activity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					refreshResource();
+					ResourceService.getInstance().refresh(myWebView);
 				}
 			});
 		}

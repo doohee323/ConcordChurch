@@ -1,4 +1,4 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.receiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -7,9 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class PackageManagement extends BroadcastReceiver {
+import com.tz.concordchurch.service.ResourceService;
 
-	private static final String TAG = PackageManagement.class.getSimpleName();
+public class PackageReceiver extends BroadcastReceiver {
+
+	private static final String TAG = PackageReceiver.class.getSimpleName();
 
 	private static AlarmManager alarmManager = null;
 	private static PendingIntent pendingIntent = null;
@@ -42,6 +44,7 @@ public class PackageManagement extends BroadcastReceiver {
 				intent.getData().getSchemeSpecificPart())
 				&& intent.getAction().contains("PACKAGE_REPLACED")) {
 			AppSettings.init(context);
+			ResourceService.getInstance().refresh(null);
 		}
 	}
 

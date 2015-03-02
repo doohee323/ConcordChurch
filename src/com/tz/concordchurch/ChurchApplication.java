@@ -4,8 +4,10 @@ import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
+
+import com.tz.concordchurch.receiver.AppSettings;
+import com.tz.concordchurch.service.ResourceService;
 
 public class ChurchApplication extends Application {
 
@@ -20,8 +22,8 @@ public class ChurchApplication extends Application {
 		super.onCreate();
 		context = getApplicationContext();
 		AppSettings.init(context);
-		
-        context.startService(new Intent(context, ResourceService.class));
+		ResourceService.getInstance().init(context);
+        //context.startService(new Intent(context, ResourceService.class));
 	}
 
 	@Override

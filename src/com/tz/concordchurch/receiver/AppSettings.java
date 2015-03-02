@@ -1,4 +1,4 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.receiver;
 
 import android.content.Context;
 import android.content.SharedPreferences;

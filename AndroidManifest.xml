@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen">
         <activity
-            android:name=".MainActivity"
+            android:name="com.tz.concordchurch.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,9 +28,9 @@
             </intent-filter>
         </activity>
         
-        <service android:name="com.tz.concordchurch.ResourceSerivce"/>
+        <service android:name="com.tz.concordchurch.service.ResourceSerivce"/>
         
-        <receiver android:name="com.tz.concordchurch.PackageManagement" >
+        <receiver android:name="com.tz.concordchurch.receiver.PackageReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" >
                 </action>
@@ -65,9 +65,9 @@
             </intent-filter>
         </receiver>       
         
-        <receiver android:name="com.tz.concordchurch.AlarmReceiver"/>
+        <receiver android:name="com.tz.concordchurch.receiver.AlarmReceiver"/>
         
-        <receiver android:name="com.tz.concordchurch.ServiceStarter">
+        <receiver android:name="com.tz.concordchurch.service.StarterReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED">
                 </action>

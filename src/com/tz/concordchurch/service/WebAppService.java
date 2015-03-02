@@ -1,12 +1,15 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.service;
 
 import android.content.Context;
 import android.webkit.JavascriptInterface;
 
-public class WebAppInterface {
+import com.tz.concordchurch.activity.MainActivity;
+import com.tz.concordchurch.util.AppUtil;
+
+public class WebAppService {
 	Context mContext;
 
-	WebAppInterface(Context c) {
+	WebAppService(Context c) {
 		mContext = c;
 	}
 

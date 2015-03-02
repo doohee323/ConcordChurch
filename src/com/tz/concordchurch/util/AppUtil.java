@@ -1,4 +1,4 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.util;
 
 import java.io.BufferedReader;
 import java.io.File;

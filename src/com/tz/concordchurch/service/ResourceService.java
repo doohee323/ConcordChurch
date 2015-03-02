@@ -1,4 +1,4 @@
-package com.tz.concordchurch;
+package com.tz.concordchurch.service;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,6 +37,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.tz.concordchurch.receiver.AppSettings;
+import com.tz.concordchurch.util.AppUtil;
+import com.tz.concordchurch.util.MyWebClient;
+
 public class ResourceService extends Service {
 
 	// static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
@@ -44,16 +48,29 @@ public class ResourceService extends Service {
 	// static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
 	static int REFRESH_TIME = 500000; // refresh interval, milisecond
-	
-	public WebView myWebView = null;
-	JSONArray allResources = new JSONArray();
-	Context mContext;
-	float downYValue;
-	float upYValue;
-	ActionBar actionBar;
+
+	private JSONArray allResources = new JSONArray();
+	private Context mContext;
+	private float downYValue;
+	private float upYValue;
+	private ActionBar actionBar;
 	public static final String SD_DIR = Environment
 			.getExternalStorageDirectory().toString();
 	public static final String STORAGE_DIR = SD_DIR + "/churchapp";
+
+	private static ResourceService instance;
+
+	public static ResourceService getInstance() {
+		if (instance == null) {
+			instance = new ResourceService();
+			instance.refresh(null);
+		}
+		return instance;
+	}
+
+	public void init(Context mContext) {
+		this.mContext = mContext;
+	}
 
 	// myWebView.loadUrl("http://192.168.1.5:3000");
 	// ��������������������� ������������������ ������������ ������������ ������
@@ -186,7 +203,7 @@ public class ResourceService extends Service {
 	public void launchWebView(WebView myWebView) {
 		try {
 			StrictMode.enableDefaults();
-			//myWebView.setBackgroundColor(Color.TRANSPARENT);
+			// myWebView.setBackgroundColor(Color.TRANSPARENT);
 			myWebView.setWebViewClient(new MyWebClient());
 			WebSettings webSettings = myWebView.getSettings();
 			webSettings.setJavaScriptEnabled(true);
@@ -218,8 +235,8 @@ public class ResourceService extends Service {
 			if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
 				webSettings.setAllowUniversalAccessFromFileURLs(true);
 			}
-			myWebView.addJavascriptInterface(new WebAppInterface(this),
-					"Android");
+			myWebView
+					.addJavascriptInterface(new WebAppService(this), "Android");
 			myWebView.setWebChromeClient(new CustomWebChromeClient());
 
 			myWebView.setOnTouchListener(new View.OnTouchListener() {
@@ -264,7 +281,8 @@ public class ResourceService extends Service {
 		}
 	}
 
-	class GetHttpResourceTask extends AsyncTask<String, Void, InputStream> {
+	private class GetHttpResourceTask extends
+			AsyncTask<String, Void, InputStream> {
 		private WebResource listener = new WebResource();
 		private String fileNm = null;
 		private String filePath = null;
@@ -360,12 +378,11 @@ public class ResourceService extends Service {
 	 */
 	protected void resetThreadPolicy() {
 		if (mPreviousThreadPolicy != null) {
-			// reset to old policy
 			StrictMode.setThreadPolicy(mPreviousThreadPolicy);
 		}
 	}
 
-	public void refreshResource(WebView myWebView) {
+	public void refresh(WebView myWebView) {
 		try {
 			CACHE_LV = 2;
 			StrictMode.enableDefaults();
