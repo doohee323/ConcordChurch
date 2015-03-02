@@ -25,7 +25,7 @@ public class AppSettings {
 	private static Context context;
 	private static SharedPreferences prefs;
 
-	public static void initialize(Context pContext) {
+	public static void init(Context pContext) {
 		context = pContext;
 		prefs = context.getSharedPreferences(PrefsKeys.PREFS,
 				Context.MODE_PRIVATE);

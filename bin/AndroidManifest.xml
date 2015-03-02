@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tz.concordchurch"
-    android:versionCode="1"
+    android:versionCode="2"
     android:versionName="1.0" >
     
     <uses-permission android:name="android.permission.INTERNET" />
@@ -27,6 +27,58 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <service android:name="com.tz.concordchurch.ResourceSerivce"/>
+        
+        <receiver android:name="com.tz.concordchurch.PackageManagement" >
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" >
+                </action>
+
+                <data
+                    android:path="com.broadcast_receiver_test"
+                    android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" >
+                </action>
+
+                <data
+                    android:path="com.broadcast_receiver_test"
+                    android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED" >
+                </action>
+
+                <data
+                    android:path="com.broadcast_receiver_test"
+                    android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" >
+                </action>
+
+                <data
+                    android:path="com.broadcast_receiver_test"
+                    android:scheme="package" />
+            </intent-filter>
+        </receiver>       
+        
+        <receiver android:name="com.tz.concordchurch.AlarmReceiver"/>
+        
+        <receiver android:name="com.tz.concordchurch.ServiceStarter">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED">
+                </action>
+                <action android:name="android.intent.action.ACTION_PACKAGE_REPLACED">
+                </action>
+
+                <category android:name="android.intent.category.HOME">
+                </category>
+            </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>
