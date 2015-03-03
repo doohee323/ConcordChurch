@@ -180,7 +180,7 @@ public class ResourceService extends Service {
 				if (file.exists() && CACHE_LV == 2) {
 					Log.d("MainActivity", "filePath exist ==> " + filePath);
 					// temporary
-					//FileUtil.removeDIR(STORAGE_DIR);
+					// FileUtil.removeDIR(STORAGE_DIR);
 					listener.callbackResources(fileNm);
 				} else {
 					Log.d("MainActivity", "filePath not exist ==> " + filePath);
@@ -207,7 +207,7 @@ public class ResourceService extends Service {
 		try {
 			StrictMode.enableDefaults();
 			// myWebView.setBackgroundColor(Color.TRANSPARENT);
-			myWebView.setWebViewClient(new MyWebClient());
+			myWebView.setWebViewClient(new MyWebClient(mContext));
 			WebSettings webSettings = myWebView.getSettings();
 			webSettings.setJavaScriptEnabled(true);
 			webSettings.setDomStorageEnabled(true);
@@ -220,18 +220,6 @@ public class ResourceService extends Service {
 						+ "/databases/");
 			}
 
-			myWebView.setWebViewClient(new WebViewClient() {
-				@Override
-				public void onPageStarted(WebView view, String url,
-						Bitmap favicon) {
-					super.onPageStarted(view, url, favicon);
-				}
-
-				@Override
-				public void onPageFinished(WebView view, String url) {
-					super.onPageFinished(view, url);
-				}
-			});
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				WebView.setWebContentsDebuggingEnabled(true);
 			}
