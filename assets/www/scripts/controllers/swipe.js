@@ -57,6 +57,9 @@ angular.module('concordchurchApp')
   $scope.open = function(item) {
   	config.item = item;
   	$state.go('video');
+		if(Android) {
+			Android.viewVideo(JSON.stringify(item));
+		}
 		return;    
   	item = JSON.parse(item);
   	$window.open(item.video, '', 'scrollbars=no,resizeable=no,toolbar=no,status=no,top=100,left=100,width=741,height=472');

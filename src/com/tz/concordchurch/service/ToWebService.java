@@ -1,4 +1,4 @@
-package com.tz.concordchurch.util;
+package com.tz.concordchurch.service;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,11 +7,11 @@ import android.net.Uri;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class MyWebClient extends WebViewClient {
+public class ToWebService extends WebViewClient {
 
 	private Context mContext;
 
-	public MyWebClient(Context mContext) {
+	public ToWebService(Context mContext) {
 		this.mContext = mContext;
 	}
 

@@ -34,13 +34,10 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.tz.concordchurch.receiver.AppSettings;
 import com.tz.concordchurch.util.AppUtil;
-import com.tz.concordchurch.util.FileUtil;
-import com.tz.concordchurch.util.MyWebClient;
 
 public class ResourceService extends Service {
 
@@ -207,7 +204,7 @@ public class ResourceService extends Service {
 		try {
 			StrictMode.enableDefaults();
 			// myWebView.setBackgroundColor(Color.TRANSPARENT);
-			myWebView.setWebViewClient(new MyWebClient(mContext));
+			myWebView.setWebViewClient(new ToWebService(mContext));
 			WebSettings webSettings = myWebView.getSettings();
 			webSettings.setJavaScriptEnabled(true);
 			webSettings.setDomStorageEnabled(true);
@@ -227,7 +224,7 @@ public class ResourceService extends Service {
 				webSettings.setAllowUniversalAccessFromFileURLs(true);
 			}
 			myWebView
-					.addJavascriptInterface(new WebAppService(this), "Android");
+					.addJavascriptInterface(new FromWebService(this), "Android");
 			myWebView.setWebChromeClient(new CustomWebChromeClient());
 
 			myWebView.setOnTouchListener(new View.OnTouchListener() {
