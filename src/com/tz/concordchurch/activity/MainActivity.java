@@ -21,6 +21,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 
 import com.tz.concordchurch.R;
+import com.tz.concordchurch.dao.WordLogDao;
 import com.tz.concordchurch.receiver.AppSettings;
 import com.tz.concordchurch.service.ResourceService;
 
@@ -28,7 +29,7 @@ public class MainActivity extends Activity {
 
 	//static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
 	static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
-	//static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
+	//static String RESOURCE_DOMAIN = "http://192.168.1.17:3000"; 
 	static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
 	static int REFRESH_TIME = 500000; // refresh interval, milisecond
 
@@ -65,6 +66,10 @@ public class MainActivity extends Activity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		WordLogDao dao = new WordLogDao(mContext);
+		dao.open();
+//		dao.drop();
 	}
 
 	@Override

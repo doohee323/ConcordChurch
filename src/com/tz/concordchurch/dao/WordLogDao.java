@@ -1,58 +1,50 @@
 package com.tz.concordchurch.dao;
 
+import java.io.File;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
-public class WordLogDao extends SQLiteOpenHelper {
-	private static final String DATABASE_NAME = "church_database";
-	private static final String TABLE_NAME = "word_log";
-
-	private static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME
-			+ " (id INTEGER PRIMARY KEY," + " link TEXT UNIQUE NULL, "
-			+ " img TEXT NULL, " + " title TEXT NULL, "
-			+ " content TEXT NULL, " + " speaker TEXT NULL, "
-			+ " date TEXT NULL, " + " video TEXT NULL, " + " desc TEXT NULL) ";
-	private static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS "
-			+ TABLE_NAME;
-
-	public static final int DATABASE_VERSION = 1;
+public class WordLogDao {
+	private static SQLiteDatabase db;
+	private MySQLiteHelper dbHelper;
 
 	public WordLogDao(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		dbHelper = new MySQLiteHelper(context);
 	}
 
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(SQL_CREATE_TABLE);
+	public void open() throws SQLException {
+		db = dbHelper.getWritableDatabase();
 	}
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL(SQL_DELETE_TABLE);
-		onCreate(db);
+	public void drop() throws SQLException {
+		new File("/data/data/com.tz.concordchurch/databases/church_database").exists();
+		new File("/data/data/com.tz.concordchurch/databases/church_database").delete();
+		//db.execSQL(MySQLiteHelper.SQL_DELETE_TABLE);
 	}
 
-	@Override
-	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		onUpgrade(db, oldVersion, newVersion);
+	public void close() {
+		dbHelper.close();
 	}
 
-	private void update(ContentValues contentValues) {
-		SQLiteDatabase db = getWritableDatabase();
+	public void update(ContentValues contentValues) {
 		String selection = " id = ?";
 		String[] selectionArgs = { String.valueOf(contentValues
 				.getAsString("id")) };
-		db.update(TABLE_NAME, contentValues, selection, selectionArgs);
-		// db.close();
+		db.update(MySQLiteHelper.TABLE_NAME, contentValues, selection,
+				selectionArgs);
+//		db.close();
 	}
 
-	private void insert(ContentValues contentValues) {
-		SQLiteDatabase db = getWritableDatabase();
-		db.insert(TABLE_NAME, null, contentValues);
-		// db.close();
+	public void insert(ContentValues contentValues) {
+		if (db == null) {
+			open();
+		}
+		db.insert(MySQLiteHelper.TABLE_NAME, null, contentValues);
+//		db.close();
 	}
 
 	public void write(ContentValues contentValues) {
@@ -63,15 +55,18 @@ public class WordLogDao extends SQLiteOpenHelper {
 				insert(contentValues);
 			}
 		} else {
-			throw new RuntimeException("Must have column Id");
+			insert(contentValues);
 		}
 	}
 
-	private boolean checkIfExist(ContentValues contentValues) {
-		SQLiteDatabase sqldb = getReadableDatabase();
-		Cursor cursor = sqldb.query(TABLE_NAME, new String[] { "id", "link" },
-				"id = ?", new String[] { contentValues.getAsString("id") },
-				null, null, null);
+	public boolean checkIfExist(ContentValues contentValues) {
+		if (db == null) {
+			open();
+		}
+		Cursor cursor = db.query(MySQLiteHelper.TABLE_NAME, new String[] {
+				"id", "link" }, "id = ?",
+				new String[] { contentValues.getAsString("id") }, null, null,
+				null);
 		boolean alreadyExist;
 		if (cursor.getCount() > 0) {
 			alreadyExist = true;
@@ -79,7 +74,7 @@ public class WordLogDao extends SQLiteOpenHelper {
 			alreadyExist = false;
 		}
 		cursor.close();
-		// sqldb.close();
+//		db.close();
 		return alreadyExist;
 	}
 

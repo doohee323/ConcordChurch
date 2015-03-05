@@ -36,6 +36,7 @@
 {"resource":"/bower_components/angular-carousel/dist/angular-carousel.css", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},
 {"resource":"/bower_components/jquery/dist/jquery.js", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},
 {"resource":"/bower_components/angular/angular.js", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},
+{"resource":"/bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},
 {"resource":"/bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},
 {"resource":"/bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},
 {"resource":"/bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js", "cachelevel":"static", "version":"2015-02-25 14:01:01.01"},

@@ -2,7 +2,6 @@ package com.tz.concordchurch.service;
 
 import java.util.Iterator;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -45,8 +44,10 @@ public class FromWebService {
 				Iterator<?> keys = json.keys();
 				while (keys.hasNext()) {
 					String key = (String) keys.next();
-					String val = json.getString(key);
-					values.put(key, val);
+					if(!key.equals("$$hashKey")) {
+						String val = json.getString(key);
+						values.put(key, val);
+					}
 				}
 				new WordLogDao(mContext).write(values);
 			}
