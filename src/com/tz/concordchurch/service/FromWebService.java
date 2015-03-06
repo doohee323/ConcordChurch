@@ -44,7 +44,7 @@ public class FromWebService {
 				Iterator<?> keys = json.keys();
 				while (keys.hasNext()) {
 					String key = (String) keys.next();
-					if(!key.equals("$$hashKey")) {
+					if (!key.equals("$$hashKey")) {
 						String val = json.getString(key);
 						values.put(key, val);
 					}
@@ -54,6 +54,11 @@ public class FromWebService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@JavascriptInterface
+	public String getLogsByReadAt(String read_at) {
+		return new WordLogDao(mContext).getLogsByReadAt(read_at).toString();
 	}
 
 }

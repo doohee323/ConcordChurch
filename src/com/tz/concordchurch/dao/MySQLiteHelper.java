@@ -7,10 +7,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 	SQLiteDatabase db;
 	
-	private static final String DATABASE_NAME = "church_database";
-	public static final String TABLE_NAME = "word_log";
+	private static final String DATABASE_NAME = "church_database.db";
+	public static final String TABLE_WORD = "word_log";
 
-	private static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME
+	private static final String SQL_CREATE_TABLE_WORD = "CREATE TABLE " + TABLE_WORD
 			+ " (" 
 			+ " _id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ " link TEXT NOT NULL, " 
@@ -21,10 +21,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			+ " bible TEXT NULL, "
 			+ " img TEXT NULL, " 
 			+ " date TEXT NULL, "
-			+ " video TEXT NULL " 
+			+ " video TEXT NULL, " 
+			+ " read_at TEXT NULL "
 			+ ") ";
-	public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS "
-			+ TABLE_NAME;
+	public static final String SQL_DELETE_TABLE_WORD = "DROP TABLE IF EXISTS "
+			+ TABLE_WORD;
 
 	public static final int DATABASE_VERSION = 1;
 
@@ -34,12 +35,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(SQL_CREATE_TABLE);
+		db.execSQL(SQL_CREATE_TABLE_WORD);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL(SQL_DELETE_TABLE);
+		db.execSQL(SQL_DELETE_TABLE_WORD);
 		onCreate(db);
 	}
 

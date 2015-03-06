@@ -1,10 +1,15 @@
 package com.tz.concordchurch.dao;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorJoiner.Result;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -16,14 +21,12 @@ public class WordLogDao {
 		dbHelper = new MySQLiteHelper(context);
 	}
 
-	public void open() throws SQLException {
-		db = dbHelper.getWritableDatabase();
-	}
-
 	public void drop() throws SQLException {
-		new File("/data/data/com.tz.concordchurch/databases/church_database").exists();
-		new File("/data/data/com.tz.concordchurch/databases/church_database").delete();
-		//db.execSQL(MySQLiteHelper.SQL_DELETE_TABLE);
+		new File("/data/data/com.tz.concordchurch/databases/church_database")
+				.exists();
+		new File("/data/data/com.tz.concordchurch/databases/church_database")
+				.delete();
+		// db.execSQL(MySQLiteHelper.SQL_DELETE_TABLE);
 	}
 
 	public void close() {
@@ -31,20 +34,29 @@ public class WordLogDao {
 	}
 
 	public void update(ContentValues contentValues) {
-		String selection = " id = ?";
-		String[] selectionArgs = { String.valueOf(contentValues
-				.getAsString("id")) };
-		db.update(MySQLiteHelper.TABLE_NAME, contentValues, selection,
-				selectionArgs);
-//		db.close();
+		try {
+			db = dbHelper.getWritableDatabase();
+			String selection = " id = ?";
+			String[] selectionArgs = { String.valueOf(contentValues
+					.getAsString("id")) };
+			db.update(MySQLiteHelper.TABLE_WORD, contentValues, selection,
+					selectionArgs);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			db.close();
+		}
 	}
 
 	public void insert(ContentValues contentValues) {
-		if (db == null) {
-			open();
+		try {
+			db = dbHelper.getWritableDatabase();
+			db.insert(MySQLiteHelper.TABLE_WORD, null, contentValues);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			db.close();
 		}
-		db.insert(MySQLiteHelper.TABLE_NAME, null, contentValues);
-//		db.close();
 	}
 
 	public void write(ContentValues contentValues) {
@@ -60,22 +72,58 @@ public class WordLogDao {
 	}
 
 	public boolean checkIfExist(ContentValues contentValues) {
-		if (db == null) {
-			open();
+		boolean alreadyExist = false;
+		try {
+			db = dbHelper.getWritableDatabase();
+			Cursor cursor = db.query(MySQLiteHelper.TABLE_WORD, new String[] {
+					"id", "link" }, "id = ?",
+					new String[] { contentValues.getAsString("id") }, null,
+					null, null);
+			if (cursor.getCount() > 0) {
+				alreadyExist = true;
+			} else {
+				alreadyExist = false;
+			}
+			cursor.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			db.close();
 		}
-		Cursor cursor = db.query(MySQLiteHelper.TABLE_NAME, new String[] {
-				"id", "link" }, "id = ?",
-				new String[] { contentValues.getAsString("id") }, null, null,
-				null);
-		boolean alreadyExist;
-		if (cursor.getCount() > 0) {
-			alreadyExist = true;
-		} else {
-			alreadyExist = false;
-		}
-		cursor.close();
-//		db.close();
 		return alreadyExist;
+	}
+
+	public List<JSONObject> getLogsByReadAt(String read_at) {
+		List<JSONObject> items = new ArrayList<JSONObject>();
+		db = dbHelper.getWritableDatabase();
+		Cursor cursor = null;
+		try {
+			cursor = db
+					.rawQuery(
+							"SELECT _id, link, content, title, desc, speaker, bible, img, date, video, read_at FROM "
+									+ MySQLiteHelper.TABLE_WORD
+									+ " WHERE read_at = ?",
+							new String[] { read_at });
+			// Check if the row exists, return it if it does
+			// if(mycursor.moveToFirst())
+			// return
+			// mycursor.getString(mycursor.getColumnIndex(COLUMN_CATEGORIES));
+
+			// No rows match id
+			while (cursor.moveToNext()) {
+				JSONObject result = new JSONObject();
+				result.put("", cursor.getString(0));
+				items.add(result);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+			db.close();
+		}
+		return items;
 	}
 
 }
