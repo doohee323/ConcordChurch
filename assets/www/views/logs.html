@@ -1,5 +1,5 @@
 
-<div ng-controller="WordsCtrl" data-ng-init="retrieve( 1 )">
+<div ng-controller="LogsCtrl" data-ng-init="retrieve( 1 )">
 
   <md-toolbar class="md-theme-light" style="background-color: #f2f2f2;">
     <h1 class="md-toolbar-tools">
@@ -24,7 +24,7 @@
   
   <md-content>
     <md-list>
-      <md-item ng-repeat="item in words">
+      <md-item ng-repeat="item in logs">
         <md-item-content>
           <div class="md-tile-left">
           	<a ng-click="open('{{item}}')" title="show video">

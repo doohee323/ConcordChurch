@@ -16,16 +16,24 @@ public class FileUtil {
 			if (listFile.length > 0) {
 				for (int i = 0; i < listFile.length; i++) {
 					if (listFile[i].isFile()) {
-						listFile[i].delete();
+						File target = new File(listFile[i].getAbsolutePath());
+						File trash = new File(target.getAbsolutePath()
+								+ System.currentTimeMillis());
+						target.renameTo(trash);
+						trash.delete();
 					} else {
 						removeDIR(listFile[i].getPath());
 					}
-					listFile[i].delete();
+					File target = new File(listFile[i].getAbsolutePath());
+					File trash = new File(target.getAbsolutePath()
+							+ System.currentTimeMillis());
+					target.renameTo(trash);
+					trash.delete();
 				}
 			}
 		} catch (Exception e) {
 			System.err.println(System.err);
-			System.exit(-1);
+			// System.exit(-1);
 		}
 
 	}

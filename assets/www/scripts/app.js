@@ -41,10 +41,10 @@ angular
 		url: '/main',
 		templateUrl: 'views/swipe.html',
 		controller: 'SwipeCtrl'
-	}).state('words', {
-		url: '/words',
-		templateUrl: 'views/words.html',
-		controller: 'WordsCtrl'
+	}).state('logs', {
+		url: '/logs',
+		templateUrl: 'views/logs.html',
+		controller: 'LogsCtrl'
 	}).state('video', {
 		url: '/video',
 		templateUrl: 'views/video.html',
@@ -77,15 +77,15 @@ angular.module('concordchurchApp').factory('$exceptionHandler', function () {
 	        date: moment().utc().toDate().format('YYYYMMDD HH:mm:ss:SS'),
 	        stack: exception.stack
 	      };
-	  	console.log(errorInfo.stack);
 	    $.ajax({
 	      type: "POST",
 	      url: "http://192.168.1.5:3005/loggingFromClient",
 	      data: errorInfo
 	    }).done(function(data) {
+		  	console.log(errorInfo.stack);
 	  		console.log('sent error message to the server!' + JSON.stringify(errorInfo));
 	    }).fail(function(data) {
-	  		console.log('can\'t send error message to the server!' + data);
+	  		//console.log('can\'t send error message to the server!' + data);
 	    }).always(function(data) {
 			});   			    
   	}

@@ -2,14 +2,14 @@
 
 /**
  * @ngdoc function
- * @name concordchurchApp.controller:WordsCtrl
+ * @name concordchurchApp.controller:LogsCtrl
  * @description
- * # WordsCtrl
+ * # LogsCtrl
  * Controller of the concordchurchApp
  */
 var bRun;
 angular.module('concordchurchApp')
-  .controller('WordsCtrl', function ($rootScope, $scope, $window, $stateParams, $state, $http, $location, $timeout, config, MeService) {
+  .controller('LogsCtrl', function ($rootScope, $scope, $window, $stateParams, $state, $http, $location, $timeout, config, LogsService) {
 		$scope.$location = $location;
 		var id = $stateParams.id;
   	var prefix = "/api/bunch/v2/me/";
@@ -43,17 +43,17 @@ angular.module('concordchurchApp')
 			if(!id) {
 				id = currentRow;
 			}
-			MeService.R.get({'id':id}, function(data) {
+			LogsService.R.get({'id':id}, function(data) {
 				if(data.rows) {
-					$scope.words = data.rows;
-					localStorage.setItem(prefix + id, JSON.stringify($scope.words));
+					$scope.logs = data.rows;
+					localStorage.setItem(prefix + id, JSON.stringify($scope.logs));
 					if(Android) {
-						Android.cacheJson(JSON.stringify($scope.words));
+						Android.cacheJson(JSON.stringify($scope.logs));
 					}
-			    config.curitem = $scope.words[0];
+			    config.curitem = $scope.logs[0];
 				}
 			}, function(error) {
-		   $scope.words = [{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570",
+		   $scope.logs = [{"img":"http://ckbch.org/_data/ckbch/file/m2_1/thumb/470570","link":"http://ckbch.org/_chboard/bcast/audio.php?bo_table=m2_1&ty=v&wr_id=470570",
 		   "title":"하나님이 세상을 이처럼 사랑하사","content":"요3:14-16","speaker":"길영환 목사",
 		   "date":"2014-12-21","bible":"[요] 3:14 모세가 광야에서 뱀을 든 것같이 인자도 들려야 하리니 [요] 3:15 이는 저를 믿는 자마...",
 		   "video":"http://www.youtube.com/v/ghS_TOQJ4ow?version=3&hl=en_US&rel=0&autoplay=1",
@@ -63,9 +63,9 @@ angular.module('concordchurchApp')
 	
 	  $scope.retrieve = function(id) {
 			var datast = localStorage.getItem(prefix + id);
-			if(datast) {
-				$scope.words = JSON.parse(datast);
-		    config.curitem = $scope.words[0];
+			if(!datast) {
+				$scope.logs = JSON.parse(datast);
+		    config.curitem = $scope.logs[0];
 			} else {
 				$scope.refresh(id);
 		  }

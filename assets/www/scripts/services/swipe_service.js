@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('concordchurchApp')
-.factory('MeService', function ($resource, config) {
+.factory('SwipeService', function ($resource, config) {
   return {
     R: $resource("/bbs/:id", {
     	id:"@id"

@@ -178,7 +178,7 @@ public class ResourceService extends Service {
 				if (file.exists() && CACHE_LV == 2) {
 					Log.d("MainActivity", "filePath exist ==> " + filePath);
 					// temporary
-					//FileUtil.removeDIR(STORAGE_DIR);
+					FileUtil.removeDIR(STORAGE_DIR);
 					listener.callbackResources(fileNm);
 				} else {
 					Log.d("MainActivity", "filePath not exist ==> " + filePath);

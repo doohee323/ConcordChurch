@@ -68,7 +68,8 @@ public class MainActivity extends Activity {
 		}
 		
 		WordLogDao dao = new WordLogDao(mContext);
-		dao.drop();
+		dao.open();
+//		dao.drop();
 	}
 
 	@Override

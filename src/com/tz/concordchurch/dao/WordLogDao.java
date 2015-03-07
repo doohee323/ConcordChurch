@@ -21,6 +21,10 @@ public class WordLogDao {
 		dbHelper = new MySQLiteHelper(context);
 	}
 
+	public void open() throws SQLException { 
+		db = dbHelper.getWritableDatabase();
+	}
+
 	public void drop() throws SQLException {
 		new File("/data/data/com.tz.concordchurch/databases/church_database")
 				.exists();
@@ -35,7 +39,7 @@ public class WordLogDao {
 
 	public void update(ContentValues contentValues) {
 		try {
-			db = dbHelper.getWritableDatabase();
+//			db = dbHelper.getWritableDatabase();
 			String selection = " id = ?";
 			String[] selectionArgs = { String.valueOf(contentValues
 					.getAsString("id")) };
@@ -44,18 +48,18 @@ public class WordLogDao {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			db.close();
+//			db.close();
 		}
 	}
 
 	public void insert(ContentValues contentValues) {
 		try {
-			db = dbHelper.getWritableDatabase();
+//			db = dbHelper.getWritableDatabase();
 			db.insert(MySQLiteHelper.TABLE_WORD, null, contentValues);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			db.close();
+//			db.close();
 		}
 	}
 
@@ -74,7 +78,7 @@ public class WordLogDao {
 	public boolean checkIfExist(ContentValues contentValues) {
 		boolean alreadyExist = false;
 		try {
-			db = dbHelper.getWritableDatabase();
+//			db = dbHelper.getWritableDatabase();
 			Cursor cursor = db.query(MySQLiteHelper.TABLE_WORD, new String[] {
 					"id", "link" }, "id = ?",
 					new String[] { contentValues.getAsString("id") }, null,
@@ -88,22 +92,23 @@ public class WordLogDao {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			db.close();
+//			db.close();
 		}
 		return alreadyExist;
 	}
 
-	public List<JSONObject> getLogsByReadAt(String read_at) {
+	public List<JSONObject> getLogsByReadAt(String params) {
 		List<JSONObject> items = new ArrayList<JSONObject>();
-		db = dbHelper.getWritableDatabase();
+//		db = dbHelper.getWritableDatabase();
 		Cursor cursor = null;
 		try {
+			JSONObject input = new JSONObject(params);
 			cursor = db
 					.rawQuery(
 							"SELECT _id, link, content, title, desc, speaker, bible, img, date, video, read_at FROM "
 									+ MySQLiteHelper.TABLE_WORD
 									+ " WHERE read_at = ?",
-							new String[] { read_at });
+							new String[] { input.getString("read_at") });
 			// Check if the row exists, return it if it does
 			// if(mycursor.moveToFirst())
 			// return
@@ -121,7 +126,7 @@ public class WordLogDao {
 			if (cursor != null) {
 				cursor.close();
 			}
-			db.close();
+//			db.close();
 		}
 		return items;
 	}

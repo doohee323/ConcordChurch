@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('concordchurchApp')
-.controller('SwipeCtrl', function($scope, $http, $state, MeService) {
+.controller('SwipeCtrl', function($scope, $http, $state, SwipeService) {
 
   var prefix = "/api/bunch/v2/me/";
 	
@@ -26,7 +26,7 @@ angular.module('concordchurchApp')
 		if(!id) {
 			id = currentRow;
 		}
-		MeService.R.get({'id':id}, function(data) {
+		SwipeService.R.get({'id':id}, function(data) {
 			if(data.rows) {
 				$scope.words = data.rows;
 				localStorage.setItem(prefix + id, JSON.stringify($scope.words));
