@@ -11,9 +11,11 @@ var bRun;
 angular.module('concordchurchApp')
   .controller('LogsCtrl', function ($rootScope, $scope, $window, $stateParams, $state, $http, $location, $timeout, config, LogsService) {
 		$scope.$location = $location;
-		var id = $stateParams.id;
+		var read_at = $stateParams.read_at;
   	var prefix = "/api/bunch/v2/me/";
-		var currentRow = 1;
+debugger;
+		var today = moment().startOf('day').utc().toDate().format('YYYY-MM-DD');
+		if(!read_at) read_at = today;
 		
 		$scope.alert = '';
 		$scope.showListBottomSheet = function($event) {
@@ -23,30 +25,30 @@ angular.module('concordchurchApp')
 	    $scope.alert = '';
 	  };	
 	
-	  $scope.next = function(id) {
-	    if(!id) {
-	    	id = currentRow + 1;
-	    	currentRow = id;
+	  $scope.next = function(read_at) {
+	    if(!read_at) {
+	    	read_at = moment(today).startOf('day').utc().add('d', 1).toDate().format('YYYY-MM-DD');
+	    	today = read_at;
 	    }
-			$scope.retrieve(id);
+			$scope.retrieve(read_at);
 		}
 	
-	  $scope.prev = function(id) {
-	    if(!id) {
-	    	id = currentRow - 1;
-	    	currentRow = id;
+	  $scope.prev = function(read_at) {
+	    if(!read_at) {
+	    	read_at = moment(today).startOf('day').utc().add('d', -1).toDate().format('YYYY-MM-DD');
+	    	today = read_at;
 	    }
-			$scope.retrieve(id);
+			$scope.retrieve(read_at);
 		}
 		
-	  $scope.refresh = function(id) {
-			if(!id) {
-				id = currentRow;
+	  $scope.refresh = function(read_at) {
+			if(!read_at) {
+				read_at = today;
 			}
-			LogsService.R.get({'id':id}, function(data) {
+			LogsService.R.get({'read_at':read_at}, function(data) {
 				if(data.rows) {
 					$scope.logs = data.rows;
-					localStorage.setItem(prefix + id, JSON.stringify($scope.logs));
+					localStorage.setItem(prefix + read_at, JSON.stringify($scope.logs));
 					if(Android) {
 						Android.cacheJson(JSON.stringify($scope.logs));
 					}
@@ -61,13 +63,13 @@ angular.module('concordchurchApp')
 			});
 		}
 	
-	  $scope.retrieve = function(id) {
-			var datast = localStorage.getItem(prefix + id);
+	  $scope.retrieve = function(read_at) {
+			var datast = localStorage.getItem(prefix + read_at);
 			if(!datast) {
 				$scope.logs = JSON.parse(datast);
 		    config.curitem = $scope.logs[0];
 			} else {
-				$scope.refresh(id);
+				$scope.refresh(read_at);
 		  }
 		}
     

@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -104,5 +105,40 @@ public class AppUtil {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 */
+	public static Timestamp getCurrentTimeStamp() {
+		try {
+			Calendar cal = new GregorianCalendar();
+			Timestamp result = new Timestamp(cal.getTime().getTime());
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException("[DateUtil][getCurrentTimeStamp]"
+					+ e.getMessage(), e);
+		}
+	}
+
+	public static String getCurrentDateString(String pattern) {
+		return convertToString(getCurrentTimeStamp(), pattern);
+	}
+
+	public static String convertToString(Timestamp dateData, String pattern,
+			java.util.Locale locale) {
+		try {
+			if (dateData == null) {
+				return null;
+			}
+			SimpleDateFormat formatter = new SimpleDateFormat(pattern, locale);
+			return formatter.format(dateData);
+		} catch (Exception e) {
+			throw new RuntimeException("[DateUtil][convertToString]"
+					+ e.getMessage(), e);
+		}
+	}
+
+	public static String convertToString(Timestamp dateData, String pattern) {
+		return convertToString(dateData, pattern, java.util.Locale.US);
 	}
 }

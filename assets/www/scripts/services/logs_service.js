@@ -3,7 +3,6 @@
 angular.module('concordchurchApp')
 .factory('LogsService', function ($resource, config) {
 	try {
-debugger;
 		if(Android != null && Android) {
 			var factory = {}; 
 			factory.R = {};

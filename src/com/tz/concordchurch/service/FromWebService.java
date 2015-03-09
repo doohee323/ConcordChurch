@@ -49,6 +49,7 @@ public class FromWebService {
 						values.put(key, val);
 					}
 				}
+				values.put("read_at", AppUtil.getCurrentDateString("yyyy-MM-dd"));
 				new WordLogDao(mContext).write(values);
 			}
 		} catch (Exception e) {
