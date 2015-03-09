@@ -11,6 +11,7 @@ import android.webkit.JavascriptInterface;
 import com.tz.concordchurch.activity.MainActivity;
 import com.tz.concordchurch.dao.WordLogDao;
 import com.tz.concordchurch.util.AppUtil;
+import com.tz.concordchurch.util.FileUtil;
 
 public class FromWebService {
 	Context mContext;
@@ -58,8 +59,14 @@ public class FromWebService {
 	}
 
 	@JavascriptInterface
-	public String getLogsByReadAt(String read_at) {
-		return new WordLogDao(mContext).getLogsByReadAt(read_at).toString();
+	public String getLogsByReadAt(String params) {
+		return new WordLogDao(mContext).getLogsByReadAt(params).toString();
+	}
+	
+	@JavascriptInterface
+	public boolean refresh() {
+		FileUtil.removeDIR(ResourceService.STORAGE_DIR);
+		return true;
 	}
 
 }

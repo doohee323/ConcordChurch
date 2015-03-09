@@ -7,8 +7,9 @@ angular.module('concordchurchApp')
 			var factory = {}; 
 			factory.R = {};
 	    factory.R.get = function(id, callback) {
-				var rslt = Android.getLogsByReadAt(JSON.stringify(id));
-				callback(JSON.parse(rslt));
+				var rslt = {};
+				rslt.rows = JSON.parse(Android.getLogsByReadAt(JSON.stringify(id)));
+				callback(rslt);
 			}
 	    return factory;
 		}

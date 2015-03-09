@@ -117,7 +117,17 @@ public class WordLogDao {
 			// No rows match id
 			while (cursor.moveToNext()) {
 				JSONObject result = new JSONObject();
-				result.put("", cursor.getString(0));
+				result.put("_id", cursor.getString(0));
+				result.put("link", cursor.getString(1));
+				result.put("content", cursor.getString(2));
+				result.put("title", cursor.getString(3));
+				result.put("desc", cursor.getString(4));
+				result.put("speaker", cursor.getString(5));
+				result.put("bible", cursor.getString(6));
+				result.put("img", cursor.getString(7));
+				result.put("date", cursor.getString(8));
+				result.put("video", cursor.getString(9));
+				result.put("read_at", cursor.getString(10));
 				items.add(result);
 			}
 		} catch (Exception e) {
