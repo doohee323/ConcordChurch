@@ -177,6 +177,8 @@ public class ResourceService extends Service {
 				File file = new File(filePath);
 				if (file.exists() && CACHE_LV == 2) {
 					Log.d("MainActivity", "filePath exist ==> " + filePath);
+					// temporary
+					// FileUtil.removeDIR(STORAGE_DIR);
 					listener.callbackResources(fileNm);
 				} else {
 					Log.d("MainActivity", "filePath not exist ==> " + filePath);
@@ -222,8 +224,8 @@ public class ResourceService extends Service {
 			if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
 				webSettings.setAllowUniversalAccessFromFileURLs(true);
 			}
-			myWebView
-					.addJavascriptInterface(new FromWebService(this), "Android");
+			myWebView.addJavascriptInterface(new FromWebService(this),
+					"Android");
 			myWebView.setWebChromeClient(new CustomWebChromeClient());
 
 			myWebView.setOnTouchListener(new View.OnTouchListener() {
@@ -398,5 +400,9 @@ public class ResourceService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
+	}
+
+	public JSONArray getAllResources() {
+		return allResources;
 	}
 }

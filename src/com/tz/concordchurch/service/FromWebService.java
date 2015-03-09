@@ -2,10 +2,12 @@ package com.tz.concordchurch.service;
 
 import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.tz.concordchurch.activity.MainActivity;
@@ -66,6 +68,14 @@ public class FromWebService {
 	@JavascriptInterface
 	public boolean refresh() {
 		FileUtil.removeDIR(ResourceService.STORAGE_DIR);
+		ResourceService.getInstance().refresh(null);
+		
+		JSONArray allResources = ResourceService.getInstance().getAllResources();
+		for (int i = 0; i < allResources.length(); i++) {
+			JSONArray allResources2 = ResourceService.getInstance().getAllResources();
+			
+		}
+		
 		return true;
 	}
 
