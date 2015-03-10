@@ -24,6 +24,7 @@ import com.tz.concordchurch.R;
 import com.tz.concordchurch.dao.WordLogDao;
 import com.tz.concordchurch.receiver.AppSettings;
 import com.tz.concordchurch.service.ResourceService;
+import com.tz.concordchurch.util.DeviceProperties;
 
 public class MainActivity extends Activity {
 
@@ -54,6 +55,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		mContext = getBaseContext();
+		
 		setContentView(R.layout.activity_main);
 		try {
 			AppSettings.setAssetsYn(true);

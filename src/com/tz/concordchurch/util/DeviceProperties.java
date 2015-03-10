@@ -6,7 +6,7 @@ import android.net.NetworkInfo.DetailedState;
 
 public class DeviceProperties {
   
-  public String getConnectedState(Context con) {
+  public static String getConnectedState(Context con) {
     try {
       final ConnectivityManager connMgr =
           (ConnectivityManager) con.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -19,6 +19,7 @@ public class DeviceProperties {
         return "3g";
       }
     } catch (Exception e) {
+		e.printStackTrace();
     }
     return "";
   }

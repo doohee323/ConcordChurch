@@ -111,9 +111,11 @@ public class WebResource {
 				if (!dir.exists()) {
 					dir.mkdirs();
 				}
-				new GetHttpResourceTask().execute(
-						ResourceService.RESOURCE_DOMAIN + "/" + fileNm,
-						filePath);
+				if(!ResourceService.getInstance().getNwStatus().equals("")) {
+					new GetHttpResourceTask().execute(
+							ResourceService.RESOURCE_DOMAIN + "/" + fileNm,
+							filePath);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

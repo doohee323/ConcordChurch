@@ -25,7 +25,7 @@ public class FromWebService {
 	@JavascriptInterface
 	public void cacheJson(String input) {
 		try {
-			if (input != null) {
+			if (input != null && !ResourceService.getInstance().getNwStatus().equals("")) {
 				String filePath = MainActivity.STORAGE_DIR + "/dataset.json";
 				JSONArray jsonArry = new JSONArray(input);
 				for (int i = 0; i < jsonArry.length(); i++) {
