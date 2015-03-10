@@ -43,7 +43,7 @@ import com.tz.concordchurch.util.FileUtil;
 public class ResourceService extends Service {
 
   // static String RESOURCE_DOMAIN = "http://192.168.43.23:3005";
-  static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
+  public static String RESOURCE_DOMAIN = "http://52.0.156.206:3000";
   // static String RESOURCE_DOMAIN = "http://192.168.1.17:3000";
   static int CACHE_LV = 2; // 0:no cached, 1:dirty, 2:cached
   static int REFRESH_TIME = 500000; // refresh interval, milisecond
@@ -87,104 +87,6 @@ public class ResourceService extends Service {
     @Override
     public void onReceivedIcon(WebView view, Bitmap icon) {
       super.onReceivedIcon(view, icon);
-    }
-  }
-
-  public class WebResource {
-    public void callbackResourceJson(String src) {
-      try {
-        JSONObject json = new JSONObject(src);
-        RESOURCE_DOMAIN = json.getString("domain");
-        if (json.getBoolean("forceYn"))
-          CACHE_LV = 0;
-        JSONArray resources = json.getJSONArray("resources");
-        if (allResources.length() == 0)
-          allResources = resources;
-        for (int i = 0; i < resources.length(); i++) {
-          String resource = ((JSONObject) resources.get(i)).getString("resource");
-          String cachelevel = ((JSONObject) resources.get(i)).getString("cachelevel");
-          String version = ((JSONObject) resources.get(i)).getString("version");
-          resource = resource.substring(1, resource.length());
-
-          String downloaded = "y";
-          String prevVersion = ((JSONObject) allResources.get(i)).getString("version");
-          Long prevDownload = (long) 0;
-          if (!((JSONObject) allResources.get(i)).isNull("downloaded_at")) {
-            prevDownload = ((JSONObject) allResources.get(i)).getLong("downloaded_at");
-          }
-          if (!prevVersion.equals(version)) {
-            downloaded = "n";
-          } else {
-            if (cachelevel.equals("nocache")) {
-              downloaded = "n";
-            } else if (cachelevel.equals("static")) {
-              version =
-                  version.replaceAll("\\.", "").replaceAll(" ", "").replaceAll(":", "")
-                      .replaceAll("-", "");
-              if (AppUtil.getDate() < Long.parseLong(version)
-                  && prevDownload < Long.parseLong(version)) {
-                downloaded = "n";
-              }
-            }
-          }
-          Log.d("MainActivity", "resource=========>" + resource);
-          ((JSONObject) allResources.get(i)).put("downloaded", downloaded);
-          getResources(resource);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-
-    public void callbackResources(String filePath) {
-      try {
-        for (int i = 0; i < allResources.length(); i++) {
-          String resource;
-          resource = ((JSONObject) allResources.get(i)).getString("resource");
-          if (filePath.equals(resource)) {
-            ((JSONObject) allResources.get(i)).put("downloaded", "y");
-            ((JSONObject) allResources.get(i)).put("downloaded_at", AppUtil.getDate());
-            break;
-          }
-        }
-        if (filePath.equals("/index.html")) {
-          if (!AppSettings.getAssetsYn()) {
-            // launchWebView();
-          } else {
-            AppSettings.setAssetsYn(false);
-          }
-        }
-      } catch (JSONException e) {
-        e.printStackTrace();
-      }
-    }
-
-    public String getResources(String fileNm) {
-      WebResource listener = new WebResource();
-      String filePath = null;
-      try {
-        filePath = STORAGE_DIR + "/" + fileNm;
-        File file = new File(filePath);
-        if (file.exists() && CACHE_LV == 2) {
-          Log.d("MainActivity", "filePath exist ==> " + filePath);
-          // temporary
-          // FileUtil.removeDIR(STORAGE_DIR);
-          listener.callbackResources(fileNm);
-        } else {
-          Log.d("MainActivity", "filePath not exist ==> " + filePath);
-          filePath = STORAGE_DIR + "/" + fileNm;
-          filePath = filePath.substring(0, filePath.lastIndexOf("/"));
-          File dir = new File(filePath);
-          if (!dir.exists()) {
-            dir.mkdirs();
-          }
-          new GetHttpResourceTask().execute(RESOURCE_DOMAIN + "/" + fileNm, filePath);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-        return null;
-      }
-      return filePath;
     }
   }
 
@@ -252,80 +154,6 @@ public class ResourceService extends Service {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    }
-  }
-
-  private class GetHttpResourceTask extends AsyncTask<String, Void, InputStream> {
-    private WebResource listener = new WebResource();
-    private String fileNm = null;
-    private String filePath = null;
-
-    @Override
-    protected InputStream doInBackground(String... urls) {
-      InputStream result = null;
-      try {
-        String strUrl = urls[0];
-        fileNm = strUrl.substring(strUrl.lastIndexOf("/") + 1, strUrl.length());
-        if (urls.length > 1)
-          filePath = urls[1];
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpGet httpget = new HttpGet(strUrl);
-        HttpResponse response = httpclient.execute(httpget);
-        HttpEntity entity = response.getEntity();
-        result = entity.getContent();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      return result;
-    }
-
-    @Override
-    protected void onPostExecute(InputStream input) {
-      if (fileNm.equals("resources.json")) {
-        BufferedReader br = null;
-        StringBuilder sb = new StringBuilder();
-        try {
-          String line;
-          br = new BufferedReader(new InputStreamReader(input));
-          while ((line = br.readLine()) != null) {
-            sb.append(line);
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        } finally {
-          if (br != null) {
-            try {
-              br.close();
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-          }
-        }
-        listener.callbackResourceJson(sb.toString());
-      } else {
-        OutputStream output = null;
-        try {
-          byte[] buffer = new byte[8 * 1024];
-          output = new FileOutputStream(filePath + "/" + fileNm);
-          int bytesRead;
-          while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(buffer, 0, bytesRead);
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        } finally {
-          try {
-            output.close();
-            input.close();
-            Log.d("MainActivity", filePath + "/" + fileNm + "->"
-                + new File(filePath + "/" + fileNm).exists());
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-        listener.callbackResources(filePath.substring(STORAGE_DIR.length(), filePath.length())
-            + "/" + fileNm);
-      }
     }
   }
 
