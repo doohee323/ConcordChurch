@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.tz.concordchurch.service.ResourceService;
+import com.tz.concordchurch.util.FileUtil;
 
 public class PackageReceiver extends BroadcastReceiver {
 
@@ -38,6 +39,7 @@ public class PackageReceiver extends BroadcastReceiver {
 		if (action.contains("PACKAGE_REMOVED")) {
 			Log.d(TAG, TAG + " " + myPackageName + " uninstalling "
 					+ targetPackageName);
+			FileUtil.removeDIR(ResourceService.STORAGE_DIR);
 		}
 
 		if (context.getPackageName().equals(
