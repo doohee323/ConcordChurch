@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -25,7 +26,8 @@ public class FromWebService {
 	@JavascriptInterface
 	public void cacheJson(String input) {
 		try {
-			if (input != null && !ResourceService.getInstance().getNwStatus().equals("")) {
+			if (input != null
+					&& !ResourceService.getInstance().getNwStatus().equals("")) {
 				String filePath = MainActivity.STORAGE_DIR + "/dataset.json";
 				JSONArray jsonArry = new JSONArray(input);
 				for (int i = 0; i < jsonArry.length(); i++) {
@@ -56,6 +58,13 @@ public class FromWebService {
 		String filePath = MainActivity.STORAGE_DIR + "/dataset.json";
 		// new File(filePath).delete();
 		return AppUtil.getFromFile(filePath, "utf-8").toString();
+	}
+
+	@JavascriptInterface
+	public String getResourceStatus() {
+		JSONArray allResources = ResourceService.getInstance()
+				.getAllResources();
+		return allResources.toString();
 	}
 
 	@JavascriptInterface
