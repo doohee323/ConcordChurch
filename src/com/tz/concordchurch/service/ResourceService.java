@@ -226,6 +226,19 @@ public class ResourceService extends Service {
 	}
 
 	public JSONArray getAllResources() {
+		if(allResources.length() == 0) {
+			if(!nwStatus.equals("")) {
+				new GetHttpResourceTask().execute(RESOURCE_DOMAIN
+						+ "/resources.json");
+			} else {
+				String src = FileUtil.getString(ResourceService.STORAGE_DIR + "/resources.json");
+				JSONObject json = new JSONObject(src);
+				ResourceService.RESOURCE_DOMAIN = json.getString("domain");
+				if (json.getBoolean("forceYn"))
+					ResourceService.CACHE_LV = 0;
+				allResources = json.getJSONArray("resources");
+			}
+		}
 		return allResources;
 	}
 

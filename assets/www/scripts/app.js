@@ -45,6 +45,10 @@ angular
 		url: '/logs',
 		templateUrl: 'views/logs.html',
 		controller: 'LogsCtrl'
+	}).state('resources', {
+		url: '/resources',
+		templateUrl: 'views/resources.html',
+		controller: 'ResourcesCtrl'
 	}).state('video', {
 		url: '/video',
 		templateUrl: 'views/video.html',

@@ -61,7 +61,7 @@ public class FromWebService {
 	}
 
 	@JavascriptInterface
-	public String getResourceStatus() {
+	public String getResourceStatus(String params) {
 		JSONArray allResources = ResourceService.getInstance()
 				.getAllResources();
 		return allResources.toString();

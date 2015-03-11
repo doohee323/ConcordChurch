@@ -65,8 +65,7 @@ angular.module('concordchurchApp')
 	  $scope.refresh = function() {
 			if(Android) {
 				if(Android.refresh()) {
-					alert(document.location.origin);
-					document.location.href = document.location.origin;
+					document.location.reload();
 				}
 			}
 		}	
